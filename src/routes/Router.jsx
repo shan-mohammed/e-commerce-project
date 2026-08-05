@@ -6,6 +6,7 @@ import Products from '../pages/Products'
 import Home from '../pages/Home'
 import ProductDetails from '../components/ProductDetails'
 
+
 export const router = createBrowserRouter([
     {
         path:"/",
@@ -19,7 +20,8 @@ export const router = createBrowserRouter([
             {
                 path:"/products",
                 element:<Products/>
-            },  {
+            }, 
+             {
                 path:"/products/:id",
                 element:<ProductDetails/>
             }

@@ -3,7 +3,7 @@ const Hero = () => {
      const navigate= useNavigate()
     
   return (
-    <section className="bg-gradient from-teal-500 to-cyan-600 text-white">
+    <section className="rounded-full bg-radial-[at_50%_75%] from-sky-200 via-blue-400 to-indigo-900 to-90% text-white">
       <div className="max-w-7xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center justify-between">
 
         <div className="lg:w-1/2 space-y-6">

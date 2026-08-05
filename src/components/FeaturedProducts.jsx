@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
+  const navigate =useNavigate()
 
+ 
+ 
   useEffect(() => {
     fetch("https://dummyjson.com/products?limit=4")
       .then((res) => res.json())
@@ -35,14 +40,17 @@ const FeaturedProducts = () => {
               ₹{product.price}
             </p>
 
-            <button className="mt-4 w-full bg-teal-500 text-white py-2 rounded hover:bg-teal-600">
-              View Details
-            </button>
+           <button
+  onClick={() => navigate(`/products/${product.id}`)}
+  className="mt-4 w-full bg-teal-500 text-white py-2 rounded hover:bg-teal-600"
+>
+  View Details
+</button>
           </div>
         ))}
       </div>
     </section>
   );
-};
+ }
 
 export default FeaturedProducts;
