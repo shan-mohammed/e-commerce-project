@@ -43,7 +43,7 @@ const ProductDetails = () => {
           {/* Images */}
           <div>
 
-            <div className="relative bg-gray-100 rounded-lg flex justify-center items-center h-[420px]">
+            <div className="relative bg-gray-100 rounded-lg flex justify-center items-center h-105">
 
               <img
                 src={product.images[currentImage]}
