@@ -1,9 +1,20 @@
-import React from 'react'
+import Hero from "../components/Hero";
+import FeaturedProducts from "../components/FeaturedProducts";
+import OfferBanner from "../components/OfferBanner";
+import Features from "../components/Features";
 
 const Home = () => {
   return (
-    <div>Home</div>
-  )
-}
+    <main className="bg-gray-50">
+      <Hero />
 
-export default Home
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <FeaturedProducts />
+        <OfferBanner />
+        <Features />
+      </div>
+    </main>
+  );
+};
+
+export default Home;
