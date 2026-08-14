@@ -95,7 +95,7 @@ const Cart = () => {
                     {/* Remove */}
                     <button
                       onClick={() => dispatch(removeFromCart(item.id))}
-                      className="text-red-500 hover:text-red-700 transition flex-shrink-0"
+                      className="text-red-500 hover:text-red-700 transition shrink-0"
                       title="Remove item"
                     >
                       <FaTrash />

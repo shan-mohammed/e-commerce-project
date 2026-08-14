@@ -51,7 +51,7 @@ const cartCount = cartItems.reduce(
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-[60]
+        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-60
         transform transition-transform duration-300 ease-in-out
         ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
