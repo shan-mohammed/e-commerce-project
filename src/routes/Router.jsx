@@ -5,8 +5,7 @@ import NotFound from '../pages/NotFound'
 import Products from '../pages/Products'
 import Home from '../pages/Home'
 import ProductDetails from '../components/ProductDetails'
-
-
+import Cart from '../pages/Cart'
 export const router = createBrowserRouter([
     {
         path:"/",
@@ -24,7 +23,12 @@ export const router = createBrowserRouter([
              {
                 path:"/products/:id",
                 element:<ProductDetails/>
+            },
+            {
+                path:"/cart",
+                element:<Cart/>
             }
+    
         ]
     }
 ])

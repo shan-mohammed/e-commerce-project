@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   FaShoppingCart,
   FaUser,
@@ -15,7 +16,11 @@ import { FiSearch } from "react-icons/fi";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-
+const cartItems= useSelector((state)=>state.cart.items)
+const cartCount = cartItems.reduce(
+  (total ,item)=>total +item.quantity,
+  0
+)
   // Prevent body scrolling when sidebar is open
   useEffect(() => {
     if (open) {
@@ -155,8 +160,8 @@ const Navbar = () => {
             Cart
 
             <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              0
-            </span>
+           {cartCount}
+           </span>
           </NavLink>
         </div>
       </div>

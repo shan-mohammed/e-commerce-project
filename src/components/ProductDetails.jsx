@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaBolt } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../redux/cartSlice";
+
 
 const ProductDetails = () => {
-  const { id } = useParams();
 
+  const { id } = useParams();
+  const dispatch= useDispatch();
   const [product, setProduct] = useState(null);
   const [currentImage, setCurrentImage] = useState(0);
 
@@ -126,7 +130,7 @@ const ProductDetails = () => {
                 ₹{product.price}
               </span>
 
-              <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full">
+              <span className="bg-red-100 text-blue-600 px-3 py-1 rounded-full">
                 {product.discountPercentage}% OFF
               </span>
 
@@ -145,10 +149,20 @@ const ProductDetails = () => {
                 Wishlist
               </button>
 
-              <button className="flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg">
-                <FaShoppingCart />
-                Add to Cart
-              </button>
+             <button
+  onClick={() => {
+
+    try {
+      dispatch(addToCart(product));
+    } catch (error) {
+      console.error("DISPATCH ERROR:", error);
+    }
+  }}
+  className="flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg"
+>
+  <FaShoppingCart />
+  Add to Cart
+</button>
 
               <button className="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg">
                 <FaBolt />
