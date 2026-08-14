@@ -76,7 +76,7 @@ const Cart = () => {
               <div className="flex flex-col sm:flex-row gap-5">
 
                 {/* Product Image */}
-                <div className="w-full sm:w-32 h-32 flex-shrink-0 bg-gray-50 rounded-lg flex items-center justify-center p-3">
+                <div className="w-full sm:w-32 h-32 shrink-0 bg-gray-50 rounded-lg flex items-center justify-center p-3">
                   <img
                     src={item.thumbnail}
                     alt={item.title}
