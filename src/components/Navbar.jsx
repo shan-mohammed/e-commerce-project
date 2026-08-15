@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
+import SearchBar from "../components/SearchBar";
 import {
   FaShoppingCart,
   FaUser,
@@ -14,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 
-const Navbar = () => {
+const Navbar = ({search, setSearch}) => {
   const [open, setOpen] = useState(false);
 const cartItems= useSelector((state)=>state.cart.items)
 const cartCount = cartItems.reduce(
@@ -134,12 +135,9 @@ const cartCount = cartItems.reduce(
 
         {/* Search */}
         <div className="relative w-full md:w-1/2">
-          <input
-            type="search"
-            placeholder="Search products..."
-            className="w-full border border-gray-300 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-          <FiSearch className="absolute left-3 top-3 text-gray-500" />
+         <SearchBar
+         search={search}
+         setSearch={setSearch}/>
         </div>
 
         {/* Right Side */}
@@ -159,10 +157,10 @@ const cartCount = cartItems.reduce(
             <FaShoppingCart size={20} />
             Cart
 
-            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="absolute -top-2 -right-3 bg-red-500 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
            {cartCount}
            </span>
-          </NavLink>
+         </NavLink>
         </div>
       </div>
 
@@ -177,8 +175,11 @@ const cartCount = cartItems.reduce(
             Categories
           </button>
 
-          <NavLink to="/" className={navLinkStyle} className="flex items-center gap-2 text-gray-700 hover:text-teal-500 ">
-          <FaHome/>  Home
+          <NavLink to="/" className={navLinkStyle} >
+          <span className="flex items-center gap-2">
+    <FaHome />
+    Home
+  </span>
            
           </NavLink>
 
