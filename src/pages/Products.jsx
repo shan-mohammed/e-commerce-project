@@ -8,22 +8,33 @@ import RatingFilter from "../components/RatingFilter";
 import SortFilter from "../components/SortFilter";
 
 function Products() {
-  const {search,setSearch} =useOutletContext()
+  const { search, setSearch } = useOutletContext();
+
   const [products, setProducts] = useState([]);
-//  filter States
+
+  // Filter states
   const [category, setCategory] = useState("all");
   const [maxPrice, setMaxPrice] = useState(1500);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [rating, setRating] = useState(0);
   const [sort, setSort] = useState("");
 
+  // Fetch products
   useEffect(() => {
     fetch("https://dummyjson.com/products?limit=200")
       .then((res) => res.json())
-      .then((data) => setProducts(data.products))
-      .catch((error)=> console.error(error))
+      .then((data) => {
+        setProducts(data.products);
+
+        // Console unique categories
+        const categories = [
+          ...new Set(data.products.map((product) => product.category)),
+        ];
+
+      })
+      .catch((error) => console.error("Error fetching products:", error));
   }, []);
-             
+
   // Get unique categories
   const categories = [
     ...new Set(products.map((product) => product.category)),
@@ -53,9 +64,7 @@ function Products() {
   const filteredProducts = [...products]
     // Search
     .filter((product) =>
-      product.title
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      product.title.toLowerCase().includes(search.toLowerCase())
     )
 
     // Category
@@ -128,26 +137,120 @@ function Products() {
         Our Products
       </h1>
 
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {filteredProducts.length > 0 ? (
-        filteredProducts.map((product) => (
-          <Product
-            key={product.id}
-            product={product}
-          />
-        ))
-      ) :(
-    <div className="col-span-full flex flex-col items-center justify-center py-20">
-      <h2 className="text-2xl font-semibold text-gray-700">
-        No products found
-      </h2>
+      <div className="flex flex-col lg:flex-row gap-8">
 
-      <p className="text-gray-500 mt-2">
-        No products match "{search}"
-      </p>
-    </div>
-  )}
+        {/* ================= SIDEBAR ================= */}
+        <aside className="w-full lg:w-64 bg-white border rounded-lg p-5 h-fit">
+
+          {/* Categories */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">
+              Categories
+            </h2>
+
+            <div className="space-y-2">
+              {/* All Categories */}
+              <button
+                onClick={() => setCategory("all")}
+                className={`block w-full text-left px-3 py-2 rounded ${
+                  category === "all"
+                    ? "bg-teal-500 text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                All Categories
+              </button>
+
+              {/* API Categories */}
+              {categories.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setCategory(item)}
+                  className={`block w-full text-left px-3 py-2 rounded capitalize ${
+                    category === item
+                      ? "bg-teal-500 text-white"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Price Filter */}
+          <PriceFilter
+            maxPrice={maxPrice}
+            setMaxPrice={setMaxPrice}
+          />
+
+          {/* Brand Filter */}
+          <BrandFilter
+            brands={brands}
+            selectedBrands={selectedBrands}
+            handleBrandChange={handleBrandChange}
+          />
+
+          {/* Rating Filter */}
+          <RatingFilter
+            rating={rating}
+            setRating={setRating}
+          />
+
+          {/* Sort */}
+          <SortFilter
+            sort={sort}
+            setSort={setSort}
+          />
+
+          {/* Clear Filters */}
+          <button
+            onClick={clearFilters}
+            className="w-full mt-6 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
+          >
+            Clear Filters
+          </button>
+        </aside>
+
+        {/* ================= PRODUCTS ================= */}
+        <main className="flex-1">
+
+          {/* Result count */}
+          <div className="mb-5 text-gray-600">
+            {filteredProducts.length} products found
+          </div>
+
+          {/* Product Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <Product
+                  key={product.id}
+                  product={product}
+                />
+              ))
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center py-20">
+                <h2 className="text-2xl font-semibold text-gray-700">
+                  No products found
+                </h2>
+
+                <p className="text-gray-500 mt-2">
+                  No products match "{search}"
+                </p>
+
+                <button
+                  onClick={clearFilters}
+                  className="mt-5 bg-teal-500 text-white px-5 py-2 rounded-lg hover:bg-teal-600"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+
+          </div>
+        </main>
       </div>
     </div>
   );
