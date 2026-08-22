@@ -1,5 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import Product from "../components/Product";
+import SortFilter from "../components/SortFilter";
+
 
 function Products() {
   const {
@@ -95,7 +97,7 @@ function Products() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="max-w-7xl mx-auto px-4 py-10 ">
 
       {/* Heading */}
       <h1 className="text-4xl font-bold text-center mb-10">
@@ -132,6 +134,21 @@ function Products() {
             Brands: {filters.brands.length}
           </span>
         )}
+        
+
+        <div className="flex items-center justify-between mb-6 w-full">
+
+  <p className="text-gray-600">
+    {filteredProducts.length} products found
+  </p>
+
+  <SortFilter
+    filters={filters}
+    setFilters={setFilters}
+  />
+
+</div>
+
 
         {/* Clear */}
         {(filters.category !== "all" ||
@@ -151,7 +168,7 @@ function Products() {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 ">
 
         {filteredProducts.length > 0 ? (
 
