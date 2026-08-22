@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useEffect,useState } from "react";
+import { NavLink ,useNavigate} from "react-router-dom";
 import { useSelector } from "react-redux";
 import SearchBar from "../components/SearchBar";
-
 import {
   FaShoppingCart,
   FaUser,
@@ -22,6 +21,8 @@ const Navbar = ({
   setSearch,
 }) => {
 
+  const navigate= useNavigate()
+  const [categoryOpen, setCategoryOpen] = useState(false);
   // cart
 
   const cartItems = useSelector(
@@ -65,8 +66,9 @@ const Navbar = ({
       ...prev,
       category: value,
     }));
+     setFilterOpen(false);
+    navigate ("/products")
   };
-
 //  price change
 
   const handlePriceChange = (e) => {
@@ -126,7 +128,7 @@ const Navbar = ({
      {/* filter sidebar */}
 
       <div
-        className={`fixed top-0 left-0 h-full w-80 max-w-[90vw] bg-white shadow-2xl z-50
+        className={`fixed top-0 left-0 h-full w-[85vw] max-w-80 bg-white shadow-2xl z-50
         transform transition-transform duration-300 ease-in-out
         ${
           filterOpen
@@ -157,38 +159,96 @@ const Navbar = ({
 
           <div className="px-6 py-6 space-y-8">
 
-        {/* category */}
-            <div>
+{/* CATEGORY */}
+<div className="w-full min-w-0">
 
-              <h3 className="font-semibold text-lg mb-3">
-                Category
-              </h3>
+  <h3 className="font-semibold text-lg mb-3">
+    Category
+  </h3>
 
-              <select
-                value={filters.category}
-                onChange={handleCategoryChange}
-                className="w-full border border-gray-400 rounded-lg px-3 py-2.5
-                focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
+  <div className="relative w-full">
 
-                <option value="all">
-                  All Categories
-                </option>
+    <button
+      type="button"
+      onClick={() =>
+        setCategoryOpen((prev) => !prev)
+      }
+      className="w-full min-w-0 flex items-center justify-between
+      gap-2 border border-gray-400 rounded-lg
+      px-3 py-2.5 text-sm sm:text-base
+      bg-white text-left
+      focus:outline-none focus:ring-2 focus:ring-teal-500"
+    >
+      <span className="truncate">
+        {filters.category === "all"
+          ? "All Categories"
+          : filters.category}
+      </span>
 
-                {categories &&
-                  categories.map((category) => (
-                    <option
-                      key={category}
-                      value={category}
-                    >
-                      {category}
-                    </option>
-                  ))}
+      <span className="flex-shrink-0">
+        ▼
+      </span>
+    </button>
 
-              </select>
+    {categoryOpen && (
+      <div
+        className="absolute left-0 right-0 top-full mt-2
+        bg-white border border-gray-300 rounded-lg
+        shadow-lg z-[100]
+        max-h-56 overflow-y-auto overflow-x-hidden"
+      >
 
-            </div>
+        {/* All Categories */}
 
+        <button
+          type="button"
+          onClick={() => {
+            setFilters((prev) => ({
+              ...prev,
+              category: "all",
+            }));
+
+            setCategoryOpen(false);
+            setFilterOpen(false);
+            navigate("/products");
+          }}
+          className="w-full text-left px-3 py-2.5
+          text-sm sm:text-base
+          hover:bg-gray-100 truncate"
+        >
+          All Categories
+        </button>
+
+        {/* Categories */}
+
+        {categories.map((category) => (
+          <button
+            key={category}
+            type="button"
+            onClick={() => {
+              setFilters((prev) => ({
+                ...prev,
+                category: category,
+              }));
+
+              setCategoryOpen(false);
+              setFilterOpen(false);
+              navigate("/products");
+            }}
+            className="w-full text-left px-3 py-2.5
+            text-sm sm:text-base
+            hover:bg-gray-100 truncate"
+          >
+            {category}
+          </button>
+        ))}
+
+      </div>
+    )}
+
+  </div>
+
+</div>
           {/* price */}
 
             <div>
