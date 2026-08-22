@@ -1,30 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SearchBar from "../components/SearchBar";
+
 import {
   FaShoppingCart,
   FaUser,
   FaBars,
-  FaTimes,
-  FaTshirt,
-  FaLaptop,
-  FaGem,
-  FaCouch,
-   FaHome
+  FaHome,
 } from "react-icons/fa";
-import { FiSearch } from "react-icons/fi";
 
-const Navbar = ({search, setSearch}) => {
-  const [open, setOpen] = useState(false);
-const cartItems= useSelector((state)=>state.cart.items)
-const cartCount = cartItems.reduce(
-  (total ,item)=>total +item.quantity,
-  0
-)
-  // Prevent body scrolling when sidebar is open
+const Navbar = ({
+  filterOpen,
+  setFilterOpen,
+  filters,
+  setFilters,
+  categories,
+  brands,
+  clearFilters,
+  search,
+  setSearch,
+}) => {
+
+  // cart
+
+  const cartItems = useSelector(
+    (state) => state.cart.items
+  );
+
+  const cartCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+//  body scroll
+
   useEffect(() => {
-    if (open) {
+    if (filterOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -33,173 +45,430 @@ const cartCount = cartItems.reduce(
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [open]);
+  }, [filterOpen]);
+
+  // =========================
+  // NAV LINK STYLE
+  // =========================
 
   const navLinkStyle = ({ isActive }) =>
     isActive
       ? "text-teal-500 font-semibold border-b-2 border-teal-500 pb-1"
       : "text-gray-700 hover:text-teal-500 transition";
 
+// category change
+
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+
+    setFilters((prev) => ({
+      ...prev,
+      category: value,
+    }));
+  };
+
+//  price change
+
+  const handlePriceChange = (e) => {
+    const value = Number(e.target.value);
+
+    setFilters((prev) => ({
+      ...prev,
+      maxPrice: value,
+    }));
+  };
+
+//  brand change
+
+  const handleBrandChange = (brand) => {
+    setFilters((prev) => {
+      const isSelected = prev.brands.includes(brand);
+
+      if (isSelected) {
+        return {
+          ...prev,
+          brands: prev.brands.filter(
+            (item) => item !== brand
+          ),
+        };
+      }
+
+      return {
+        ...prev,
+        brands: [...prev.brands, brand],
+      };
+    });
+  };
+
+  // rating change
+
+  const handleRatingChange = (value) => {
+    setFilters((prev) => ({
+      ...prev,
+      rating: value,
+    }));
+  };
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
-      {/* Overlay */}
+
+   {/* overlay */}
+
       <div
         className={`fixed inset-0 bg-black/40 transition-all duration-300 z-40 ${
-          open ? "opacity-100 visible" : "opacity-0 invisible"
+          filterOpen
+            ? "opacity-100 visible"
+            : "opacity-0 invisible"
         }`}
-        onClick={() => setOpen(false)}
+        onClick={() => setFilterOpen(false)}
       ></div>
 
-      {/* Sidebar */}
+     {/* filter sidebar */}
+
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl 
+        className={`fixed top-0 left-0 h-full w-80 max-w-[90vw] bg-white shadow-2xl z-50
         transform transition-transform duration-300 ease-in-out
-        ${open ? "translate-x-0" : "-translate-x-full"}`}
+        ${
+          filterOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
+        }`}
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-5 border-b">
-          <h2 className="text-2xl font-bold text-teal-500">Categories</h2>
+
+        {/* SIDEBAR HEADER */}
+
+        <div className="flex items-center justify-between px-6 py-5 border-b">
+
+          <h2 className="text-2xl font-bold">
+            Filters
+          </h2>
 
           <button
-            onClick={() => setOpen(false)}
-            className="text-2xl text-gray-600 hover:text-red-500 transition"
+            onClick={() => setFilterOpen(false)}
+            className="text-2xl text-gray-500 hover:text-red-500 transition"
           >
-            <FaTimes />
+            ✕
           </button>
+
+        </div>
+{/* filter content */}
+
+        <div className="h-[calc(100%-145px)] overflow-y-auto">
+
+          <div className="px-6 py-6 space-y-8">
+
+        {/* category */}
+            <div>
+
+              <h3 className="font-semibold text-lg mb-3">
+                Category
+              </h3>
+
+              <select
+                value={filters.category}
+                onChange={handleCategoryChange}
+                className="w-full border border-gray-400 rounded-lg px-3 py-2.5
+                focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+
+                <option value="all">
+                  All Categories
+                </option>
+
+                {categories &&
+                  categories.map((category) => (
+                    <option
+                      key={category}
+                      value={category}
+                    >
+                      {category}
+                    </option>
+                  ))}
+
+              </select>
+
+            </div>
+
+          {/* price */}
+
+            <div>
+
+              <h3 className="font-semibold text-lg mb-3">
+                Price
+              </h3>
+
+              <input
+                type="range"
+                min="0"
+                max="1500"
+                value={filters.maxPrice}
+                onChange={handlePriceChange}
+                className="w-full accent-teal-500 cursor-pointer"
+              />
+
+              <div className="flex justify-between text-sm text-gray-500 mt-2">
+
+                <span>
+                  ₹0
+                </span>
+
+                <span>
+                  ₹{filters.maxPrice}
+                </span>
+
+              </div>
+
+            </div>
+
+            {/* brand */}
+
+            <div>
+
+              <h3 className="font-semibold text-lg mb-3">
+                Brand
+              </h3>
+
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+
+                {brands && brands.length > 0 ? (
+
+                  brands.map((brand) => (
+
+                    <label
+                      key={brand}
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+
+                      <input
+                        type="checkbox"
+                        checked={filters.brands.includes(
+                          brand
+                        )}
+                        onChange={() =>
+                          handleBrandChange(brand)
+                        }
+                        className="w-4 h-4 accent-teal-500"
+                      />
+
+                      <span className="text-sm text-gray-700">
+                        {brand}
+                      </span>
+
+                    </label>
+
+                  ))
+
+                ) : (
+
+                  <p className="text-sm text-gray-500">
+                    Loading brands...
+                  </p>
+
+                )}
+
+              </div>
+
+            </div>
+
+{/* rating */}
+
+            <div>
+
+              <h3 className="font-semibold text-lg mb-3">
+                Rating
+              </h3>
+
+              {[4, 3, 2, 1].map((value) => (
+
+                <label
+                  key={value}
+                  className="flex items-center gap-2 mb-3 cursor-pointer"
+                >
+
+                  <input
+                    type="radio"
+                    name="rating"
+                    checked={
+                      filters.rating === value
+                    }
+                    onChange={() =>
+                      handleRatingChange(value)
+                    }
+                    className="accent-teal-500"
+                  />
+
+                  <span className="text-yellow-500 tracking-wide">
+                    {"★".repeat(value)}
+                  </span>
+
+                  <span className="text-sm text-gray-500">
+                    & above
+                  </span>
+
+                </label>
+
+              ))}
+
+              {/* CLEAR RATING */}
+
+              {filters.rating > 0 && (
+                <button
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      rating: 0,
+                    }))
+                  }
+                  className="text-sm text-teal-500 hover:text-teal-700"
+                >
+                  Clear rating
+                </button>
+              )}
+
+            </div>
+
+          </div>
+
         </div>
 
-        {/* Category List */}
-        <ul className="py-3">
-          <li
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-4 px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
-          >
-            <FaTshirt className="text-teal-500" />
-            Clothing
-          </li>
+    {/* clear All filters */}
 
-          <li
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-4 px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
-          >
-            <FaLaptop className="text-teal-500" />
-            Electronics
-          </li>
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-5">
 
-          <li
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-4 px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
+          <button
+            onClick={clearFilters}
+            className="w-full bg-teal-500 hover:bg-teal-600
+            text-white py-3 rounded-lg font-medium transition"
           >
-            <FaGem className="text-teal-500" />
-            Jewellery
-          </li>
+            Clear All Filters
+          </button>
 
-          <li
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-4 px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
-          >
-            <FaCouch className="text-teal-500" />
-            Furniture
-          </li>
+        </div>
 
-          <li
-            onClick={() => setOpen(false)}
-            className="px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
-          >
-            👟 Shoes
-          </li>
-
-          <li
-            onClick={() => setOpen(false)}
-            className="px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
-          >
-            ⌚ Watches
-          </li>
-
-          <li
-            onClick={() => setOpen(false)}
-            className="px-6 py-4 hover:bg-teal-50 cursor-pointer transition"
-          >
-            🎒 Bags
-          </li>
-        </ul>
       </div>
 
-      {/* Top Navbar */}
+   {/* top navbar */}
       <div className="px-5 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Logo */}
-        <h1 className="text-3xl font-bold cursor-pointer">
-          <span className="text-teal-500">WE</span>
-          <span className="text-gray-800">SHOP</span>
-        </h1>
 
-        {/* Search */}
+        {/* LOGO */}
+
+        <NavLink to="/" className="text-3xl font-bold">
+
+          <span className="text-teal-500">
+            WE
+          </span>
+
+          <span className="text-gray-800">
+            SHOP
+          </span>
+
+        </NavLink>
+
+        {/* SEARCH */}
+
         <div className="relative w-full md:w-1/2">
-         <SearchBar
-         search={search}
-         setSearch={setSearch}/>
+
+          <SearchBar
+            search={search}
+            setSearch={setSearch}
+          />
+
         </div>
 
-        {/* Right Side */}
+        {/* RIGHT SIDE */}
+
         <div className="flex items-center gap-6">
+
+          {/* LOGIN */}
+
           <NavLink
             to="/login"
-            className="flex items-center gap-2 text-gray-700 hover:text-teal-500"
+            className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
           >
+
             <FaUser />
-            Login
+
+            <span>
+              Login
+            </span>
+
           </NavLink>
+
+          {/* CART */}
 
           <NavLink
             to="/cart"
-            className="relative flex items-center gap-2 text-gray-700 hover:text-teal-500"
+            className="relative flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
           >
+
             <FaShoppingCart size={20} />
-            Cart
 
-            <span className="absolute -top-2 -right-3 bg-red-500 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
-           {cartCount}
-           </span>
-         </NavLink>
-        </div>
-      </div>
+            <span>
+              Cart
+            </span>
 
-      {/* Bottom Navigation */}
-      <div className="border-t bg-gray-50">
-        <div className="max-w-7xl mx-auto px-5 py-3 flex gap-8 overflow-x-auto whitespace-nowrap">
-          <button
-            onClick={() => setOpen((prev) => !prev)}
-            className="flex items-center gap-2 text-gray-700 hover:text-teal-500 "
-          >
-            <FaBars />
-            Categories
-          </button>
+            <span
+              className="absolute -top-2 -right-3 bg-red-500 text-white
+              text-xs rounded-full w-5 h-5 flex items-center justify-center"
+            >
+              {cartCount}
+            </span>
 
-          <NavLink to="/" className={navLinkStyle} >
-          <span className="flex items-center gap-2">
-    <FaHome />
-    Home
-  </span>
-           
           </NavLink>
 
-          <NavLink to="/products" className={navLinkStyle}>
+        </div>
+
+      </div>
+
+  
+{/* bottum navigation */}
+      <div className="border-t bg-gray-50">
+
+        <div className="max-w-7xl mx-auto px-5 py-3 flex gap-8 overflow-x-auto whitespace-nowrap">
+
+          {/* FILTER BUTTON */}
+
+          <button
+            onClick={() => setFilterOpen(true)}
+            className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
+          >
+
+            <FaBars />
+
+            Categories
+
+          </button>
+
+          {/* HOME */}
+
+          <NavLink
+            to="/"
+            className={navLinkStyle}
+          >
+
+            <span className="flex items-center gap-2">
+
+              <FaHome />
+
+              Home
+
+            </span>
+
+          </NavLink>
+
+          {/* PRODUCTS */}
+
+          <NavLink
+            to="/products"
+            className={navLinkStyle}
+          >
             Products
           </NavLink>
 
-          <NavLink to="/products/fashion" className={navLinkStyle}>
-            Fashion
-          </NavLink>
-
-          <NavLink to="/products/electronics" className={navLinkStyle}>
-            Electronics
-          </NavLink>
-
-          <NavLink to="/products/jewellery" className={navLinkStyle}>
-            Jewellery
-          </NavLink>
         </div>
+
       </div>
+
     </nav>
   );
 };
