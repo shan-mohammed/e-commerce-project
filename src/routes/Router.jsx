@@ -1,11 +1,19 @@
 import React from 'react'
 import { createBrowserRouter } from 'react-router-dom'
-import RootLayout from '../components/RootLayout'
+import RootLayout from '../layoutes/RootLayout'
+import ProfileLayout from '../layoutes/ProfileLayout'
+import ProtectedRoute from '../components/ProtectedRoute'
 import NotFound from '../pages/NotFound'
 import Products from '../pages/Products'
 import Home from '../pages/Home'
 import ProductDetails from '../components/ProductDetails'
 import Cart from '../pages/Cart'
+import Profile from '../pages/Profile'
+import Login from '../pages/Login'
+import Signup from '../pages/Signup'
+
+
+
 export const router = createBrowserRouter([
     {
         path:"/",
@@ -27,9 +35,35 @@ export const router = createBrowserRouter([
             {
                 path:"/cart",
                 element:<Cart/>
-            }
-    
+            },
+             {
+        path: "login",
+        element: <Login />,
+      },
+
+      {
+        path: "signup",
+        element: <Signup />,
+      },
         ]
+    },
+
+    // protected customer area
+    {
+        element:<ProtectedRoute/>,
+       children:[
+        {
+           path:"profile",
+           element:<ProfileLayout/>,
+           children:[
+            {
+                index:true,
+                element:<Profile/>
+            }
+           ]
+
+        }
+       ]
     }
 ])
 

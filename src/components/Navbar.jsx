@@ -185,7 +185,7 @@ const Navbar = ({
           : filters.category}
       </span>
 
-      <span className="flex-shrink-0">
+      <span className="shrink-0">
         ▼
       </span>
     </button>
@@ -193,8 +193,8 @@ const Navbar = ({
     {categoryOpen && (
       <div
         className="absolute left-0 right-0 top-full mt-2
-        bg-white border border-gray-300 rounded-lg
-        shadow-lg z-[100]
+        bg-amber-200 border border-gray-300 rounded-lg
+        shadow-lg z-index:100
         max-h-56 overflow-y-auto overflow-x-hidden"
       >
 
