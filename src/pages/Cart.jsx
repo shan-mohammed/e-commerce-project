@@ -1,5 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   increaseQty,
   decreaseQty,
@@ -10,9 +11,20 @@ import { Link } from "react-router-dom";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate =useNavigate();
+
+  const handleCheckout = ()=>{
+    const user=JSON.parse(localStorage.getItem("user"))
+
+    if(!user){
+      navigate("/login")
+      return;
+    }
+    navigate("/profile/checkout")
+  }
 
   const cartItems = useSelector((state) => state.cart.items);
-
+  
   // Calculate total quantity
   const totalItems = cartItems.reduce(
     (total, item) => total + item.quantity,
@@ -192,7 +204,7 @@ const Cart = () => {
 
             <button
               className="w-full mt-6 bg-teal-500 hover:bg-teal-600 text-white py-3 rounded-lg font-semibold transition"
-              onClick={() => alert("Checkout coming soon!")}
+              onClick={handleCheckout}
             >
               Proceed to Checkout
             </button>

@@ -11,6 +11,8 @@ import Cart from '../pages/Cart'
 import Profile from '../pages/Profile'
 import Login from '../pages/Login'
 import Signup from '../pages/Signup'
+import Checkout from '../pages/Checkout'
+import Orders from '../pages/Orders'
 
 
 
@@ -59,6 +61,18 @@ export const router = createBrowserRouter([
             {
                 index:true,
                 element:<Profile/>
+            },
+            {
+                  path: "cart",
+                  element: <Cart />,
+            },
+            {
+                path:"checkout",
+                element:<Checkout/>
+            },
+            {
+                path:"orders",
+                element:<Orders/>,
             }
            ]
 

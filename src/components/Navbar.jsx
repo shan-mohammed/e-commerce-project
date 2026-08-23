@@ -484,7 +484,7 @@ const Navbar = ({
 {/* bottum navigation */}
       <div className="border-t bg-gray-50">
 
-        <div className="max-w-7xl mx-auto px-5 py-3 flex gap-8 overflow-x-auto whitespace-nowrap">
+        <div className="max-w-7xl mx-auto px-5 py-3 flex justify-around overflow-x-auto whitespace-nowrap">
 
           {/* FILTER BUTTON */}
 

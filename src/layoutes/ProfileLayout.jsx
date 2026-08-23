@@ -1,6 +1,7 @@
 import { NavLink,Outlet,useNavigate } from "react-router-dom";
-import { IoPerson } from "react-icons/io5";
+import { IoPerson,IoCart  } from "react-icons/io5";
 import { FiBriefcase, FiHeart ,FiMapPin } from "react-icons/fi";
+
 const ProfileLayout = ()=>{
     const navigate = useNavigate();
     const handleLogout =()=>{
@@ -58,6 +59,11 @@ const ProfileLayout = ()=>{
                 <NavLink to="/profile/orders"
                 className={menuStyle}>
                   <FiBriefcase /> My Orders
+
+                </NavLink>
+                    <NavLink to="/profile/cart"
+                className={menuStyle}>
+                  <IoCart /> My Cart
 
                 </NavLink>
 
