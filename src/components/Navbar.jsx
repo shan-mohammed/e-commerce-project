@@ -52,6 +52,10 @@ const Navbar = ({
   // NAV LINK STYLE
   // =========================
 
+  const loggedInUser = JSON.parse(
+  localStorage.getItem("loggedInUser")
+);
+
   const navLinkStyle = ({ isActive }) =>
     isActive
       ? "text-teal-500 font-semibold border-b-2 border-teal-500 pb-1"
@@ -441,18 +445,16 @@ const Navbar = ({
 
           {/* LOGIN */}
 
-          <NavLink
-            to="/login"
-            className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
-          >
+        <NavLink
+  to={loggedInUser ? "/profile" : "/login"}
+  className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
+>
+  <FaUser />
 
-            <FaUser />
-
-            <span>
-              Login
-            </span>
-
-          </NavLink>
+  <span>
+    {loggedInUser ? "Profile" : "Login"}
+  </span>
+</NavLink>
 
           {/* CART */}
 

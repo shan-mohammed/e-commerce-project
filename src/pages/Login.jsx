@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loadCart } from "../redux/cartSlice";
+
 
 const Login = () => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,32 +15,40 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const savedUser = localStorage.getItem("user");
+    // Get all registered users
+    const users =
+      JSON.parse(localStorage.getItem("users")) || [];
 
-    if (!savedUser) {
-      setError("No account found. Please create an account first.");
+    if (users.length === 0) {
+      setError(
+        "No account found. Please create an account first."
+      );
       return;
     }
 
-    const user = JSON.parse(savedUser);
+    // Find matching user
+    const user = users.find(
+      (user) =>
+        user.email.toLowerCase() === email.toLowerCase() &&
+        user.password === password
+    );
 
-    if (
-      email !== user.email ||
-      password !== user.password
-    ) {
+    if (!user) {
       setError("Invalid email or password.");
       return;
     }
 
-    // Login successful
+    // Save currently logged-in user
     localStorage.setItem(
       "loggedInUser",
       JSON.stringify({
+        id: user.id,
         name: user.name,
         email: user.email,
       })
     );
-
+    dispatch(loadCart(user.id));
+    // Login successful
     navigate("/profile");
   };
 
@@ -46,6 +57,7 @@ const Login = () => {
 
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
 
+        {/* Logo */}
         <div className="text-center mb-8">
 
           <h1 className="text-3xl font-extrabold text-teal-500">
@@ -58,6 +70,7 @@ const Login = () => {
 
         </div>
 
+        {/* Error */}
         {error && (
           <div className="bg-red-100 text-red-600 px-4 py-3 rounded-lg mb-5 text-sm">
             {error}
@@ -71,7 +84,6 @@ const Login = () => {
 
           {/* Email */}
           <div>
-
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Email
             </label>
@@ -86,12 +98,10 @@ const Login = () => {
               placeholder="Enter your email"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
-
           </div>
 
           {/* Password */}
           <div>
-
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Password
             </label>
@@ -106,7 +116,6 @@ const Login = () => {
               placeholder="Enter your password"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
-
           </div>
 
           {/* Login */}
@@ -120,7 +129,6 @@ const Login = () => {
         </form>
 
         <p className="text-center text-sm text-gray-600 mt-6">
-
           Don't have an account?
 
           <Link
@@ -129,7 +137,6 @@ const Login = () => {
           >
             Create Account
           </Link>
-
         </p>
 
       </div>

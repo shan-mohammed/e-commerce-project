@@ -1,11 +1,16 @@
 import { NavLink,Outlet,useNavigate } from "react-router-dom";
 import { IoPerson,IoCart  } from "react-icons/io5";
 import { FiBriefcase, FiHeart ,FiMapPin } from "react-icons/fi";
+import { useDispatch } from "react-redux";
+import { resetCartState } from "../redux/cartSlice"
+
 
 const ProfileLayout = ()=>{
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const handleLogout =()=>{
-        localStorage.removeItem("user")
+      dispatch(resetCartState());   
+        localStorage.removeItem("loggedInUser")
         navigate("/login")
     }
 
@@ -72,12 +77,7 @@ const ProfileLayout = ()=>{
                   <FiHeart /> Wish List
 
                 </NavLink> 
-                <NavLink 
-                to="/profile/address"
-                className={menuStyle}>
-                  <FiMapPin /> Address
-
-                </NavLink>
+             
 
             </nav>
 

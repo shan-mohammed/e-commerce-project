@@ -50,18 +50,43 @@ const Signup = () => {
       return;
     }
 
-    // Save user
-    const user = {
+    // Get existing users
+    const existingUsers =
+      JSON.parse(localStorage.getItem("users")) || [];
+
+    // Check if email already exists
+    const userExists = existingUsers.some(
+      (user) =>
+        user.email.toLowerCase() === formData.email.toLowerCase()
+    );
+
+    if (userExists) {
+      setError("An account with this email already exists.");
+      return;
+    }
+
+    // Create new user
+    const newUser = {
+      id: Date.now(),
       name: formData.name,
       email: formData.email,
       password: formData.password,
     };
 
-    localStorage.setItem("user", JSON.stringify(user));
+    // Add new user to users array
+    const updatedUsers = [
+      ...existingUsers,
+      newUser,
+    ];
+
+    localStorage.setItem(
+      "users",
+      JSON.stringify(updatedUsers)
+    );
 
     alert("Account created successfully!");
 
-    navigate("/profile");
+    navigate("/login");
   };
 
   return (
