@@ -35,9 +35,19 @@ const Checkout = () => {
       alert("Your cart is empty");
       return;
     }
+    const loggedInUser =JSON.parse(
+      localStorage.getItem("loggedInUser")
+    );
+    if(!loggedInUser){
+      navigate("/login");
+      return;
+    }
 
     const order = {
       id: `ORD-${Date.now()}`,
+      userId :loggedInUser.id,
+      userEmail :loggedInUser.email,
+      
       date: new Date().toLocaleDateString(),
       status: "Processing",
       customer: formData,
