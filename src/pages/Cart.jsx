@@ -76,7 +76,7 @@ const Cart = () => {
               className="bg-white rounded-xl shadow-sm border p-4 flex flex-col sm:flex-row gap-4"
             >
               {/* Product Image */}
-              <div className="w-full sm:w-32 h-32 flex-shrink-0 bg-gray-50 rounded-lg flex items-center justify-center">
+              <div className="w-full sm:w-32 h-32 shrink-0 bg-gray-50 rounded-lg flex items-center justify-center">
                 <img
                   src={item.thumbnail || item.images?.[0]}
                   alt={item.title}
