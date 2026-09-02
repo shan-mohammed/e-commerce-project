@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loadCart } from "../redux/cartSlice";
+import { setWishlist } from "../redux/wishListSlice";
 
 
 const Login = () => {
@@ -48,6 +49,16 @@ const Login = () => {
       })
     );
     dispatch(loadCart(user.id));
+
+// Load this user's wishlist
+dispatch(
+  setWishlist(
+    JSON.parse(
+      localStorage.getItem("userWishlists") || "{}"
+    )[user.id] || []
+  )
+);
+
     // Login successful
     navigate("/profile");
   };

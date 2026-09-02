@@ -3,13 +3,15 @@ import { IoPerson,IoCart  } from "react-icons/io5";
 import { FiBriefcase, FiHeart ,FiMapPin } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { resetCartState } from "../redux/cartSlice"
-
+import {  resetWishlistState } from "../redux/wishListSlice";
 
 const ProfileLayout = ()=>{
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const handleLogout =()=>{
-      dispatch(resetCartState());   
+
+      dispatch(resetCartState()); 
+      dispatch(resetWishlistState())  
         localStorage.removeItem("loggedInUser")
         navigate("/login")
     }
