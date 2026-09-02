@@ -6,19 +6,20 @@ const Orders = () => {
   useEffect(() => {
     // get current loggedIn user
     const loggedInUser=JSON.parse(
-      localStorage.getItem("loggedInUser") || "null"
+      localStorage.getItem("loggedInUser") 
     );
-    // Get all orders
-    const savedOrders = JSON.parse(
+    const allOrders =JSON.parse(
       localStorage.getItem("orders") || "[]"
     );
-     if(!loggedInUser){
+    if(!loggedInUser){
       setOrders([]);
       return;
-     }
+    }
+
+   
 
     //  Show only orders belonging to the logged in user
-    const userOrders = savedOrders.filter(
+    const userOrders = allOrders.filter(
       (order) => order.userId ===loggedInUser.id
     )
     setOrders(userOrders);
@@ -66,8 +67,8 @@ const Orders = () => {
                   </h3>
 
                   <p className="text-sm text-gray-500 mt-1">
-                    Ordered on: {""}
-                    {new Date(order.date).toLocaleString()}
+                    Ordered on: {order.date}
+                    {/* {new Date(order.date).toLocaleString()} */}
                   </p>
                 </div>
 
@@ -134,6 +135,8 @@ const Orders = () => {
                   <p className="text-sm text-gray-600">
                     {order.customer.name}
                   </p>
+                  <p className="text-sm text-gray-600">
+                     {order.customer.email} </p>
 
                   <p className="text-sm text-gray-600">
                     {order.customer.phone}

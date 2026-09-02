@@ -13,6 +13,7 @@ import Login from '../pages/Login'
 import Signup from '../pages/Signup'
 import Checkout from '../pages/Checkout'
 import Orders from '../pages/Orders'
+import Wishlist from '../pages/WishList'
 
 
 
@@ -73,7 +74,11 @@ export const router = createBrowserRouter([
             {
                 path:"orders",
                 element:<Orders/>,
-            }
+            },
+            {
+               path: "wishlist",
+               element: <Wishlist />,
+             }
            ]
 
         }
