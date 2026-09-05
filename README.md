@@ -49,7 +49,7 @@ Author:
      shan-mohammed
 Live URLs :
      Vercel :          https://e-commerce-project-phase-3.vercel.app/
-      github :
+      github :         https://shan-mohammed.github.io/e-commerce-project/
 
 
 
