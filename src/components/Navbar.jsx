@@ -7,7 +7,9 @@ import {
   FaUser,
   FaBars,
   FaHome,
+   FaHeart, FaBalanceScale 
 } from "react-icons/fa";
+
 
 const Navbar = ({
   filterOpen,
@@ -28,11 +30,24 @@ const Navbar = ({
   const cartItems = useSelector(
     (state) => state.cart.items
   );
+   
+
 
   const cartCount = cartItems.reduce(
     (total, item) => total + item.quantity,
     0
   );
+const wishlistItems = useSelector(
+  (state) => state.wishlist.items
+);
+
+const compareItems = useSelector(
+  (state) => state.compare.items
+);
+
+const wishlistCount = wishlistItems.length;
+const compareCount = compareItems.length;
+
 
 //  body scroll
 
@@ -456,6 +471,41 @@ const Navbar = ({
   </span>
 </NavLink>
 
+{/* Wishlist */}
+<button
+  onClick={() => navigate("/profile/wishlist")}
+  className="relative text-gray-700 hover:text-red-500 transition"
+>
+  <FaHeart className="text-xl" />
+
+  {wishlistCount > 0 && (
+    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+      {wishlistCount}
+    </span>
+  )}
+</button>
+
+{/* Compare */}
+<button
+  onClick={() => navigate("/profile/compare")}
+  className="relative text-gray-700 hover:text-purple-600 transition"
+>
+  <FaBalanceScale className="text-xl" />
+
+  {compareCount > 0 && (
+    <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+      {compareCount}
+    </span>
+  )}
+</button>
+
+{/* Cart */}
+<button
+  onClick={() => navigate("/cart")}
+  className="relative"
+>
+</button>
+
           {/* CART */}
 
           <NavLink
@@ -477,6 +527,7 @@ const Navbar = ({
             </span>
 
           </NavLink>
+
 
         </div>
 

@@ -4,14 +4,21 @@ import { FiBriefcase, FiHeart ,FiMapPin } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { resetCartState } from "../redux/cartSlice"
 import {  resetWishlistState } from "../redux/wishListSlice";
+import {FaHome}  from "react-icons/fa";
 
 const ProfileLayout = ()=>{
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+
     const handleLogout =()=>{
 
+
+
       dispatch(resetCartState()); 
-      dispatch(resetWishlistState())  
+      dispatch(resetWishlistState()) 
+       
         localStorage.removeItem("loggedInUser")
         navigate("/login")
     }
@@ -77,6 +84,11 @@ const ProfileLayout = ()=>{
                 <NavLink to="/profile/wishList"
                 className={menuStyle}>
                   <FiHeart /> Wish List
+
+                </NavLink> 
+                 <NavLink to="/"
+                className={menuStyle}>
+                  <FaHome /> Home
 
                 </NavLink> 
              

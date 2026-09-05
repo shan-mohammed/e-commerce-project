@@ -14,7 +14,7 @@ import Signup from '../pages/Signup'
 import Checkout from '../pages/Checkout'
 import Orders from '../pages/Orders'
 import Wishlist from '../pages/WishList'
-
+import Compare from '../pages/compare'
 
 
 export const router = createBrowserRouter([
@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
         errorElement:<NotFound/>,
         children:[
             {
-                index:"true",
+                index: true,
                 element:<Home/>
             },
             {
@@ -78,7 +78,11 @@ export const router = createBrowserRouter([
             {
                path: "wishlist",
                element: <Wishlist />,
-             }
+             },
+             {
+                  path: "compare",
+                   element: <Compare />,
+             },
            ]
 
         }

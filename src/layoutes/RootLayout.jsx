@@ -18,14 +18,22 @@ const RootLayout = () => {
   });
 
   // Fetch products
-  useEffect(() => {
-    fetch("https://dummyjson.com/products?limit=200")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data.products);
-      })
-      .catch((error) => console.error(error));
-  }, []);
+ useEffect(() => {
+  fetch("https://dummyjson.com/products?limit=200")
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      return res.json();
+    })
+    .then((data) => {
+      setProducts(data.products);
+    })
+    .catch((error) => {
+      console.error("Failed to fetch products:", error);
+    });
+}, []);
 
   // Categories
   const categories = [
