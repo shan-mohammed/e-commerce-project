@@ -47,6 +47,10 @@ Installation & Setup:
 
 Author:
      shan-mohammed
+Live URLs :
+     Vercel :          https://e-commerce-project-phase-3.vercel.app/
+      github :
+
 
 
 
