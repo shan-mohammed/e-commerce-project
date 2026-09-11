@@ -48,7 +48,7 @@ Installation & Setup:
 Author:
      shan-mohammed
 Live URLs :
-     Vercel :          https://e-commerce-project-phase-3.vercel.app/
+     Vercel :        e-commerce-project-psi-steel.vercel.app
       github :         https://shan-mohammed.github.io/e-commerce-project/
 
 
