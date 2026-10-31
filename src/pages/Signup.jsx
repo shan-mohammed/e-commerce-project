@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../../services/authApi";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Signup = () => {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,21 +24,16 @@ const Signup = () => {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
-      !formData.name ||
-      !formData.email ||
+      !formData.name.trim() ||
+      !formData.email.trim() ||
       !formData.password ||
       !formData.confirmPassword
     ) {
       setError("Please fill in all fields.");
-      return;
-    }
-
-    if (!formData.email.includes("@")) {
-      setError("Please enter a valid email.");
       return;
     }
 
@@ -50,53 +47,37 @@ const Signup = () => {
       return;
     }
 
-    // Get existing users
-    const existingUsers =
-      JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      setLoading(true);
+      setError("");
 
-    // Check if email already exists
-    const userExists = existingUsers.some(
-      (user) =>
-        user.email.toLowerCase() === formData.email.toLowerCase()
-    );
+      await registerUser({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
 
-    if (userExists) {
-      setError("An account with this email already exists.");
-      return;
+      alert("Account created successfully!");
+
+      navigate("/login");
+
+    } catch (error) {
+      console.error("Registration error:", error);
+
+      setError(
+        error.response?.data?.message ||
+        "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    // Create new user
-    const newUser = {
-      id: Date.now(),
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    };
-
-    // Add new user to users array
-    const updatedUsers = [
-      ...existingUsers,
-      newUser,
-    ];
-
-    localStorage.setItem(
-      "users",
-      JSON.stringify(updatedUsers)
-    );
-
-    alert("Account created successfully!");
-
-    navigate("/login");
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
-
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
 
-        {/* Logo */}
         <div className="text-center mb-8">
-
           <h1 className="text-3xl font-extrabold text-teal-500">
             WE<span className="text-gray-500">SHOP</span>
           </h1>
@@ -104,22 +85,16 @@ const Signup = () => {
           <p className="text-gray-500 mt-2">
             Create your account
           </p>
-
         </div>
 
-        {/* Error */}
         {error && (
           <div className="bg-red-100 text-red-600 px-4 py-3 rounded-lg mb-5 text-sm">
             {error}
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Full Name
@@ -131,11 +106,11 @@ const Signup = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter your name"
+              required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Email
@@ -147,11 +122,11 @@ const Signup = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
+              required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Password
@@ -163,11 +138,11 @@ const Signup = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Create a password"
+              required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
           </div>
 
-          {/* Confirm Password */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Confirm Password
@@ -179,21 +154,21 @@ const Signup = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm your password"
+              required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-lg transition"
+            disabled={loading}
+            className="w-full bg-teal-500 hover:bg-teal-600 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
 
         </form>
 
-        {/* Login link */}
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?
 
@@ -206,7 +181,6 @@ const Signup = () => {
         </p>
 
       </div>
-
     </div>
   );
 };

@@ -23,7 +23,7 @@ function Product({ product }) {
 );
 
 const isInCart = cartItems.some(
-  (item) => item.id === product.id
+  (item) => item.id === product._id
 );
   // Wishlist
   const wishlistItems = useSelector(
@@ -36,17 +36,17 @@ const isInCart = cartItems.some(
   );
 
   const isWishlisted = wishlistItems.some(
-    (item) => item.id === product.id
+    (item) => item.id === product._id
   );
 
   const isCompared = compareItems.some(
-    (item) => item.id === product.id
+    (item) => item.id === product._id
   );
 
   // Wishlist handler
   const handleWishlist = () => {
     if (isWishlisted) {
-      dispatch(removeFromWishlist(product.id));
+      dispatch(removeFromWishlist(product._id));
     } else {
       dispatch(addToWishlist(product));
     }
@@ -55,7 +55,7 @@ const isInCart = cartItems.some(
   // Compare handler
   const handleCompare = () => {
     if (isCompared) {
-      dispatch(removeFromCompare(product.id));
+      dispatch(removeFromCompare(product._id));
     } else {
       dispatch(addToCompare(product));
     }
@@ -68,10 +68,10 @@ const isInCart = cartItems.some(
       <div className="relative h-52 flex items-center justify-center bg-gray-50 p-4">
 
         <img
-          src={product.thumbnail}
-          alt={product.title}
+          src={ product.imageUrl || "/placeholder.png"}
+          alt={product.title || "Product image"}
           onClick={() =>
-            navigate(`/products/${product.id}`)
+            navigate(`/products/${product._id}`)
           }
           className="h-full w-full object-contain cursor-pointer"
         />

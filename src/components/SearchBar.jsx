@@ -33,7 +33,7 @@ const SearchBar = ({ search, setSearch }) => {
         type="search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        onKeyDown={handleSearch}
+        onKeyDown={handleKeyDown}
         placeholder="Search products.........."
         className="w-full border border-gray-300 rounded-lg pl-11 pr-4 py-3
         focus:outline-none focus:ring-2 focus:ring-teal-400"

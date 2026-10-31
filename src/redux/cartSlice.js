@@ -12,8 +12,10 @@ const getCartKey = () => {
   if (!user) {
     return null;
   }
+// support mongoDB _id
+const userId =user._id || user.id
 
-  return `cartItems_${user.id}`;
+  return `cartItems_${userId}`;
 };
 
 // Load current user's cart
@@ -50,10 +52,13 @@ const cartSlice = createSlice({
     },
 
     addToCart: (state, action) => {
+      
       const product = action.payload;
 
+      const productId = product._id || product.id;
+
       const existingItem = state.items.find(
-        (item) => item.id === product.id
+        (item) => (item._id  || item.id )=== productId
       );
 
       if (existingItem) {
@@ -77,7 +82,7 @@ const cartSlice = createSlice({
 
     removeFromCart: (state, action) => {
       state.items = state.items.filter(
-        (item) => item.id !== action.payload
+        (item) => (item._id || item.id) !== action.payload
       );
 
       const cartKey = getCartKey();
@@ -92,7 +97,7 @@ const cartSlice = createSlice({
 
     increaseQty: (state, action) => {
       const item = state.items.find(
-        (item) => item.id === action.payload
+        (item) => (item._id || item.id) === action.payload
       );
 
       if (item) {
@@ -111,7 +116,7 @@ const cartSlice = createSlice({
 
     decreaseQty: (state, action) => {
       const item = state.items.find(
-        (item) => item.id === action.payload
+        (item) => (item._id || item.id)=== action.payload
       );
 
       if (item && item.quantity > 1) {

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { getProducts } from "../../services/productApi";
 import Footer from "../components/Footer";
 
 const RootLayout = () => {
@@ -11,29 +12,69 @@ const RootLayout = () => {
 
   const [filters, setFilters] = useState({
     category: "all",
-    maxPrice: 1500,
+    maxPrice: 100000,
     brands: [],
     rating: 0,
     sort: "",
   });
 
   // Fetch products
- useEffect(() => {
-  fetch("https://dummyjson.com/products?limit=200")
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`HTTP error! Status: ${res.status}`);
-      }
+//  useEffect(() => {
+//   fetch("https://dummyjson.com/products?limit=200")
+//     .then((res) => {
+//       if (!res.ok) {
+//         throw new Error(`HTTP error! Status: ${res.status}`);
+//       }
 
-      return res.json();
-    })
-    .then((data) => {
-      setProducts(data.products);
-    })
-    .catch((error) => {
-      console.error("Failed to fetch products:", error);
-    });
-}, []);
+//       return res.json();
+//     })
+//     .then((data) => {
+//       setProducts(data.products);
+//     })
+//     .catch((error) => {
+//       console.error("Failed to fetch products:", error);
+//     });
+// }, []);
+
+// useEffect(()=>{
+//   const fetchProducts = async ()=>{
+//     try {
+//          const data = await getProducts();
+
+//          setProducts(
+//           data?.map((product)=>({
+//             ...product,
+//             id:product._id,
+//           }))
+//          )
+//     } catch (error) {
+//       console.error(
+//         "Failed to fetch products:",
+//         error.response?.data || error.message
+//       )
+//     }
+//   }
+//   fetchProducts()
+// },[])
+
+const refreshProducts= useCallback(async()=>{
+  try {
+    const data = await getProducts();
+
+    setProducts(
+      (data || []).map((product)=>({
+        ...product,
+        id:product._id
+      }))
+    )
+  } catch (error) {
+    console.error("Failed to fetch products:",error)
+  }
+})
+useEffect(()=>{
+  refreshProducts();
+
+},[refreshProducts])
 
   // Categories
   const categories = [
@@ -57,7 +98,7 @@ const RootLayout = () => {
 
     setFilters({
       category: "all",
-      maxPrice: 1500,
+      maxPrice: 100000,
       brands: [],
       rating: 0,
       sort: "",
@@ -90,6 +131,7 @@ const RootLayout = () => {
             categories,
             brands,
             clearFilters,
+            refreshProducts
           }}
         />
       </main>

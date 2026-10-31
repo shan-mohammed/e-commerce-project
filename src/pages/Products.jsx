@@ -19,8 +19,7 @@ function Products() {
 
     // Search
     .filter((product) =>
-      product.title
-        .toLowerCase()
+      product.title?.toLowerCase()
         .includes(search.toLowerCase())
     )
 
@@ -174,7 +173,7 @@ function Products() {
 
           filteredProducts.map((product) => (
             <Product
-              key={product.id}
+              key={product._id}
               product={product}
             />
           ))
