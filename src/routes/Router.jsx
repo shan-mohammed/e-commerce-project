@@ -16,6 +16,12 @@ import Orders from '../pages/Orders'
 import Wishlist from '../pages/WishList'
 import Compare from '../pages/compare'
 
+// Admin imports
+import AdminLayout from '../admin/AdminLayout'
+import Dashboard from '../pages/Dashboard'
+import AddProduct from '../pages/AddProduct'
+import ManageProducts from '../pages/ManageProducts'
+import EditProduct from '../pages/EditProduct'
 
 export const router = createBrowserRouter([
     {
@@ -53,7 +59,7 @@ export const router = createBrowserRouter([
 
     // protected customer area
     {
-        element:<ProtectedRoute/>,
+        element:<ProtectedRoute allowedRoles={["user"]}/>,
        children:[
         {
            path:"profile",
@@ -87,6 +93,37 @@ export const router = createBrowserRouter([
 
         }
        ]
+    },
+
+
+    // admin protected area
+    {
+        path:"admin",
+        element:<ProtectedRoute allowedRoles={["admin"]} />,
+        children :[
+          {
+            element:<AdminLayout/>,
+            children:[
+               {
+          path: "dashboard",
+          element: <Dashboard />,
+        },
+        {
+          path: "add-product",
+          element: <AddProduct />,
+        },
+        {
+          path: "products",
+          element: <ManageProducts />,
+        },
+        {
+          path: "edit-product/:id",
+          element: <EditProduct />,
+        },
+            ]
+          }
+        ]
     }
+
 ])
 

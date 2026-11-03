@@ -1,15 +1,17 @@
-import React, { useEffect,useState } from "react";
-import { NavLink ,useNavigate} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SearchBar from "../components/SearchBar";
+
 import {
   FaShoppingCart,
   FaUser,
   FaBars,
   FaHome,
-   FaHeart, FaBalanceScale 
+  FaHeart,
+  FaBalanceScale,
 } from "react-icons/fa";
-
 
 const Navbar = ({
   filterOpen,
@@ -22,35 +24,42 @@ const Navbar = ({
   search,
   setSearch,
 }) => {
+  const navigate = useNavigate();
 
-  const navigate= useNavigate()
+  // Authentication
+  const { loggedInUser, logout } = useAuth();
+
+  // Local state
   const [categoryOpen, setCategoryOpen] = useState(false);
-  // cart
 
+  // Redux cart
   const cartItems = useSelector(
     (state) => state.cart.items
   );
-   
 
+  // Redux wishlist
+  const wishlistItems = useSelector(
+    (state) => state.wishlist.items
+  );
 
+  // Redux compare
+  const compareItems = useSelector(
+    (state) => state.compare.items
+  );
+
+  // Cart count
   const cartCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
+    (total, item) => total + (item.quantity || 0),
     0
   );
-const wishlistItems = useSelector(
-  (state) => state.wishlist.items
-);
 
-const compareItems = useSelector(
-  (state) => state.compare.items
-);
+  // Wishlist count
+  const wishlistCount = wishlistItems.length;
 
-const wishlistCount = wishlistItems.length;
-const compareCount = compareItems.length;
+  // Compare count
+  const compareCount = compareItems.length;
 
-
-//  body scroll
-
+  // Body scroll control
   useEffect(() => {
     if (filterOpen) {
       document.body.style.overflow = "hidden";
@@ -63,33 +72,26 @@ const compareCount = compareItems.length;
     };
   }, [filterOpen]);
 
-  // =========================
-  // NAV LINK STYLE
-  // =========================
-
-  const loggedInUser = JSON.parse(
-  localStorage.getItem("loggedInUser")
-);
-
+  // Navigation link styles
   const navLinkStyle = ({ isActive }) =>
     isActive
       ? "text-teal-500 font-semibold border-b-2 border-teal-500 pb-1"
       : "text-gray-700 hover:text-teal-500 transition";
 
-// category change
-
-  const handleCategoryChange = (e) => {
-    const value = e.target.value;
-
+  // Category change
+  const handleCategoryChange = (value) => {
     setFilters((prev) => ({
       ...prev,
       category: value,
     }));
-     setFilterOpen(false);
-    navigate ("/products")
-  };
-//  price change
 
+    setCategoryOpen(false);
+    setFilterOpen(false);
+
+    navigate("/products");
+  };
+
+  // Price change
   const handlePriceChange = (e) => {
     const value = Number(e.target.value);
 
@@ -99,16 +101,17 @@ const compareCount = compareItems.length;
     }));
   };
 
-//  brand change
-
+  // Brand change
   const handleBrandChange = (brand) => {
     setFilters((prev) => {
-      const isSelected = prev.brands.includes(brand);
+      const selectedBrands = prev.brands || [];
+
+      const isSelected = selectedBrands.includes(brand);
 
       if (isSelected) {
         return {
           ...prev,
-          brands: prev.brands.filter(
+          brands: selectedBrands.filter(
             (item) => item !== brand
           ),
         };
@@ -116,13 +119,12 @@ const compareCount = compareItems.length;
 
       return {
         ...prev,
-        brands: [...prev.brands, brand],
+        brands: [...selectedBrands, brand],
       };
     });
   };
 
-  // rating change
-
+  // Rating change
   const handleRatingChange = (value) => {
     setFilters((prev) => ({
       ...prev,
@@ -130,11 +132,16 @@ const compareCount = compareItems.length;
     }));
   };
 
+  // Logout
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
 
-   {/* overlay */}
-
+      {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black/40 transition-all duration-300 z-40 ${
           filterOpen
@@ -144,8 +151,7 @@ const compareCount = compareItems.length;
         onClick={() => setFilterOpen(false)}
       ></div>
 
-     {/* filter sidebar */}
-
+      {/* Filter Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full w-[85vw] max-w-80 bg-white shadow-2xl z-50
         transform transition-transform duration-300 ease-in-out
@@ -156,8 +162,7 @@ const compareCount = compareItems.length;
         }`}
       >
 
-        {/* SIDEBAR HEADER */}
-
+        {/* Sidebar Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b">
 
           <h2 className="text-2xl font-bold">
@@ -172,104 +177,90 @@ const compareCount = compareItems.length;
           </button>
 
         </div>
-{/* filter content */}
 
+        {/* Filter Content */}
         <div className="h-[calc(100%-145px)] overflow-y-auto">
 
           <div className="px-6 py-6 space-y-8">
 
-{/* CATEGORY */}
-<div className="w-full min-w-0">
+            {/* CATEGORY */}
+            <div className="w-full min-w-0">
 
-  <h3 className="font-semibold text-lg mb-3">
-    Category
-  </h3>
+              <h3 className="font-semibold text-lg mb-3">
+                Category
+              </h3>
 
-  <div className="relative w-full">
+              <div className="relative w-full">
 
-    <button
-      type="button"
-      onClick={() =>
-        setCategoryOpen((prev) => !prev)
-      }
-      className="w-full min-w-0 flex items-center justify-between
-      gap-2 border border-gray-400 rounded-lg
-      px-3 py-2.5 text-sm sm:text-base
-      bg-white text-left
-      focus:outline-none focus:ring-2 focus:ring-teal-500"
-    >
-      <span className="truncate">
-        {filters.category === "all"
-          ? "All Categories"
-          : filters.category}
-      </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCategoryOpen((prev) => !prev)
+                  }
+                  className="w-full min-w-0 flex items-center justify-between
+                  gap-2 border border-gray-400 rounded-lg
+                  px-3 py-2.5 text-sm sm:text-base
+                  bg-white text-left
+                  focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
 
-      <span className="shrink-0">
-        ▼
-      </span>
-    </button>
+                  <span className="truncate">
+                    {filters.category === "all"
+                      ? "All Categories"
+                      : filters.category}
+                  </span>
 
-    {categoryOpen && (
-      <div
-        className="absolute left-0 right-0 top-full mt-2
-        bg-amber-200 border border-gray-300 rounded-lg
-        shadow-lg z-index:100
-        max-h-56 overflow-y-auto overflow-x-hidden"
-      >
+                  <span className="shrink-0">
+                    ▼
+                  </span>
 
-        {/* All Categories */}
+                </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            setFilters((prev) => ({
-              ...prev,
-              category: "all",
-            }));
+                {categoryOpen && (
+                  <div
+                    className="absolute left-0 right-0 top-full mt-2
+                    bg-amber-200 border border-gray-300 rounded-lg
+                    shadow-lg z-[100]
+                    max-h-56 overflow-y-auto overflow-x-hidden"
+                  >
 
-            setCategoryOpen(false);
-            setFilterOpen(false);
-            navigate("/products");
-          }}
-          className="w-full text-left px-3 py-2.5
-          text-sm sm:text-base
-          hover:bg-gray-100 truncate"
-        >
-          All Categories
-        </button>
+                    {/* All Categories */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleCategoryChange("all")
+                      }
+                      className="w-full text-left px-3 py-2.5
+                      text-sm sm:text-base
+                      hover:bg-gray-100 truncate"
+                    >
+                      All Categories
+                    </button>
 
-        {/* Categories */}
+                    {/* Categories */}
+                    {categories?.map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() =>
+                          handleCategoryChange(category)
+                        }
+                        className="w-full text-left px-3 py-2.5
+                        text-sm sm:text-base
+                        hover:bg-gray-100 truncate"
+                      >
+                        {category}
+                      </button>
+                    ))}
 
-        {categories.map((category) => (
-          <button
-            key={category}
-            type="button"
-            onClick={() => {
-              setFilters((prev) => ({
-                ...prev,
-                category: category,
-              }));
+                  </div>
+                )}
 
-              setCategoryOpen(false);
-              setFilterOpen(false);
-              navigate("/products");
-            }}
-            className="w-full text-left px-3 py-2.5
-            text-sm sm:text-base
-            hover:bg-gray-100 truncate"
-          >
-            {category}
-          </button>
-        ))}
+              </div>
 
-      </div>
-    )}
+            </div>
 
-  </div>
-
-</div>
-          {/* price */}
-
+            {/* PRICE */}
             <div>
 
               <h3 className="font-semibold text-lg mb-3">
@@ -279,7 +270,7 @@ const compareCount = compareItems.length;
               <input
                 type="range"
                 min="0"
-                max="1500"
+                max="100000"
                 value={filters.maxPrice}
                 onChange={handlePriceChange}
                 className="w-full accent-teal-500 cursor-pointer"
@@ -287,9 +278,7 @@ const compareCount = compareItems.length;
 
               <div className="flex justify-between text-sm text-gray-500 mt-2">
 
-                <span>
-                  ₹0
-                </span>
+                <span>₹0</span>
 
                 <span>
                   ₹{filters.maxPrice}
@@ -299,8 +288,7 @@ const compareCount = compareItems.length;
 
             </div>
 
-            {/* brand */}
-
+            {/* BRAND */}
             <div>
 
               <h3 className="font-semibold text-lg mb-3">
@@ -320,7 +308,7 @@ const compareCount = compareItems.length;
 
                       <input
                         type="checkbox"
-                        checked={filters.brands.includes(
+                        checked={(filters.brands || []).includes(
                           brand
                         )}
                         onChange={() =>
@@ -349,8 +337,7 @@ const compareCount = compareItems.length;
 
             </div>
 
-{/* rating */}
-
+            {/* RATING */}
             <div>
 
               <h3 className="font-semibold text-lg mb-3">
@@ -367,9 +354,7 @@ const compareCount = compareItems.length;
                   <input
                     type="radio"
                     name="rating"
-                    checked={
-                      filters.rating === value
-                    }
+                    checked={filters.rating === value}
                     onChange={() =>
                       handleRatingChange(value)
                     }
@@ -388,9 +373,9 @@ const compareCount = compareItems.length;
 
               ))}
 
-              {/* CLEAR RATING */}
-
+              {/* Clear Rating */}
               {filters.rating > 0 && (
+
                 <button
                   onClick={() =>
                     setFilters((prev) => ({
@@ -402,6 +387,7 @@ const compareCount = compareItems.length;
                 >
                   Clear rating
                 </button>
+
               )}
 
             </div>
@@ -410,12 +396,14 @@ const compareCount = compareItems.length;
 
         </div>
 
-    {/* clear All filters */}
-
+        {/* Clear All Filters */}
         <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-5">
 
           <button
-            onClick={clearFilters}
+            onClick={() => {
+              clearFilters();
+              setFilterOpen(false);
+            }}
             className="w-full bg-teal-500 hover:bg-teal-600
             text-white py-3 rounded-lg font-medium transition"
           >
@@ -426,11 +414,10 @@ const compareCount = compareItems.length;
 
       </div>
 
-   {/* top navbar */}
+      {/* TOP NAVBAR */}
       <div className="px-5 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
 
         {/* LOGO */}
-
         <NavLink to="/" className="text-3xl font-bold">
 
           <span className="text-teal-500">
@@ -444,7 +431,6 @@ const compareCount = compareItems.length;
         </NavLink>
 
         {/* SEARCH */}
-
         <div className="relative w-full md:w-1/2">
 
           <SearchBar
@@ -455,59 +441,96 @@ const compareCount = compareItems.length;
         </div>
 
         {/* RIGHT SIDE */}
-
         <div className="flex items-center gap-6">
 
           {/* LOGIN */}
+          {!loggedInUser && (
 
-        <NavLink
-  to={loggedInUser ? "/profile" : "/login"}
-  className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
->
-  <FaUser />
+            <NavLink
+              to="/login"
+              className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
+            >
+              <FaUser />
+              <span>Login</span>
+            </NavLink>
 
-  <span>
-    {loggedInUser ? "Profile" : "Login"}
-  </span>
-</NavLink>
+          )}
 
-{/* Wishlist */}
-<button
-  onClick={() => navigate("/profile/wishlist")}
-  className="relative text-gray-700 hover:text-red-500 transition"
->
-  <FaHeart className="text-xl" />
+          {/* CUSTOMER PROFILE */}
+          {loggedInUser?.role === "user" && (
 
-  {wishlistCount > 0 && (
-    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-      {wishlistCount}
-    </span>
-  )}
-</button>
+            <NavLink
+              to="/profile"
+              className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
+            >
+              <FaUser />
+              <span>Profile</span>
+            </NavLink>
 
-{/* Compare */}
-<button
-  onClick={() => navigate("/profile/compare")}
-  className="relative text-gray-700 hover:text-purple-600 transition"
->
-  <FaBalanceScale className="text-xl" />
+          )}
 
-  {compareCount > 0 && (
-    <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-      {compareCount}
-    </span>
-  )}
-</button>
+          {/* ADMIN DASHBOARD */}
+          {loggedInUser?.role === "admin" && (
 
-{/* Cart */}
-<button
-  onClick={() => navigate("/cart")}
-  className="relative"
->
-</button>
+            <NavLink
+              to="/admin/dashboard"
+              className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
+            >
+              <FaUser />
+              <span>Dashboard</span>
+            </NavLink>
+
+          )}
+
+          {/* LOGOUT */}
+          {loggedInUser && (
+
+            <button
+              onClick={handleLogout}
+              className="text-gray-700 hover:text-red-500 transition"
+            >
+              Logout
+            </button>
+
+          )}
+
+          {/* WISHLIST */}
+          <button
+            onClick={() => navigate("/profile/wishlist")}
+            className="relative text-gray-700 hover:text-red-500 transition"
+          >
+
+            <FaHeart className="text-xl" />
+
+            {wishlistCount > 0 && (
+
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                {wishlistCount}
+              </span>
+
+            )}
+
+          </button>
+
+          {/* COMPARE */}
+          <button
+            onClick={() => navigate("/profile/compare")}
+            className="relative text-gray-700 hover:text-purple-600 transition"
+          >
+
+            <FaBalanceScale className="text-xl" />
+
+            {compareCount > 0 && (
+
+              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                {compareCount}
+              </span>
+
+            )}
+
+          </button>
 
           {/* CART */}
-
           <NavLink
             to="/cart"
             className="relative flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
@@ -528,49 +551,38 @@ const compareCount = compareItems.length;
 
           </NavLink>
 
-
         </div>
 
       </div>
 
-  
-{/* bottum navigation */}
+      {/* BOTTOM NAVIGATION */}
       <div className="border-t bg-gray-50">
 
         <div className="max-w-7xl mx-auto px-5 py-3 flex justify-around overflow-x-auto whitespace-nowrap">
 
           {/* FILTER BUTTON */}
-
           <button
             onClick={() => setFilterOpen(true)}
             className="flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
           >
-
             <FaBars />
-
             Categories
-
           </button>
 
           {/* HOME */}
-
           <NavLink
             to="/"
             className={navLinkStyle}
           >
 
             <span className="flex items-center gap-2">
-
               <FaHome />
-
               Home
-
             </span>
 
           </NavLink>
 
           {/* PRODUCTS */}
-
           <NavLink
             to="/products"
             className={navLinkStyle}

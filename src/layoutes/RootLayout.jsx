@@ -61,16 +61,14 @@ const refreshProducts= useCallback(async()=>{
   try {
     const data = await getProducts();
 
-    setProducts(
-      (data || []).map((product)=>({
-        ...product,
-        id:product._id
-      }))
-    )
+    setProducts (data || []);
+   
   } catch (error) {
-    console.error("Failed to fetch products:",error)
+    console.error("Failed to fetch products:",error.response?.data || error.message)
   }
-})
+},[])
+
+
 useEffect(()=>{
   refreshProducts();
 

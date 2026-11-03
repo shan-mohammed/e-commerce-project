@@ -4,10 +4,12 @@ import { useDispatch } from "react-redux";
 import { loadCart } from "../redux/cartSlice";
 import { setWishlist } from "../redux/wishListSlice";
 import { loginUser } from "../../services/authApi";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {login} = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +27,6 @@ const Login = () => {
         email,
         password,
       });
-
       // Expected backend response:
 
       const user = response.data.user;
@@ -35,10 +36,11 @@ const Login = () => {
       }
 
       // Save logged-in user
-      localStorage.setItem(
-        "loggedInUser",
-        JSON.stringify(user)
-      );
+      // localStorage.setItem(
+      //   "loggedInUser",
+      //   JSON.stringify(user)
+      // );
+      login(user)
 
       // Load user's cart
       dispatch(loadCart(user._id));
@@ -49,8 +51,15 @@ const Login = () => {
       );
 
       dispatch(setWishlist(allWishlists[user._id] || []));
-
-      navigate("/profile");
+      
+      // navigate based on role
+      if(user.role === "admin"){
+        navigate("/admin/dashboard",{replace:true})
+      }else if(user.role ==="user"){
+        navigate("/profile",{replace:true})
+      }else{
+        setError("Invalid user role")
+      }
 
     } catch (error) {
       console.error("Login error:", error);
