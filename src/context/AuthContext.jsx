@@ -1,39 +1,59 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 
-const [loggedInUser, setLoggedInUser] = useState(() => {
-try {
-return JSON.parse(localStorage.getItem("loggedInUser"));
-} catch {
-return null;
-}
-});
+  // Initialize user from localStorage
+  const [loggedInUser, setLoggedInUser] = useState(() => {
+    const storedUser = localStorage.getItem("loggedInUser");
 
-// Login
-const login = (user) => {
-localStorage.setItem("loggedInUser", JSON.stringify(user));
-setLoggedInUser(user);
-};
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-// Logout
-const logout = () => {
-localStorage.removeItem("loggedInUser");
-setLoggedInUser(null);
-};
+  // Login
+  const login = (userData) => {
+    localStorage.setItem("loggedInUser", JSON.stringify(userData));
 
-return (
-<AuthContext.Provider
-value={{ loggedInUser, login, logout }}
->
-{children}
-</AuthContext.Provider>
-);
+    setLoggedInUser(userData);
+  };
+
+  // Logout
+  const logout = () => {
+    localStorage.removeItem("loggedInUser");
+
+    setLoggedInUser(null);
+  };
+
+  // Register
+  const register = (userData) => {
+    localStorage.setItem("loggedInUser", JSON.stringify(userData));
+
+    setLoggedInUser(userData);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        loggedInUser,
+        login,
+        logout,
+        register,
+        setLoggedInUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 // Custom hook
 export const useAuth = () => {
-return useContext(AuthContext);
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+
+  return context;
 };

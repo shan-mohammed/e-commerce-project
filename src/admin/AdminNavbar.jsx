@@ -1,18 +1,21 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {FaHome}  from "react-icons/fa";
+
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
-
+const {logout} =useAuth();
   const handleLogout = () => {
-    localStorage.removeItem("loggedInUser");
+    logout();
     navigate("/login");
   };
 
   const linkStyle = ({ isActive }) =>
-    `px-4 py-2 rounded-lg transition ${
+    `inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap ${
       isActive
-        ? "bg-blue-600 text-white"
-        : "text-gray-300 hover:bg-gray-700"
+        ? "bg-blue-600 text-white font-semibold"
+        : "text-gray-300 hover:bg-gray-700 hover:text-white"
     }`;
 
   return (
@@ -27,7 +30,7 @@ const AdminNavbar = () => {
         <div className="flex items-center gap-4">
 
           <NavLink to="/admin/dashboard" className={linkStyle}>
-            Dashboard
+           Admin Dashboard
           </NavLink>
 
           <NavLink to="/admin/add-product" className={linkStyle}>
@@ -37,6 +40,13 @@ const AdminNavbar = () => {
           <NavLink to="/admin/products" className={linkStyle}>
             Manage Products
           </NavLink>
+       <NavLink
+  to="/"
+  className={linkStyle}
+>
+  <FaHome className="text-lg" />
+  <span>Home</span>
+</NavLink>
 
           <button
             onClick={handleLogout}

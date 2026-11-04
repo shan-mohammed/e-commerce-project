@@ -5,9 +5,11 @@ import { useDispatch } from "react-redux";
 import { resetCartState } from "../redux/cartSlice"
 import {  resetWishlistState } from "../redux/wishListSlice";
 import {FaHome}  from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 const ProfileLayout = ()=>{
 
+    const{logout}=useAuth();
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -19,7 +21,7 @@ const ProfileLayout = ()=>{
       dispatch(resetCartState()); 
       dispatch(resetWishlistState()) 
        
-        localStorage.removeItem("loggedInUser")
+      logout();
         navigate("/login")
     }
 

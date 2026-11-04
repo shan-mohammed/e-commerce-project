@@ -483,7 +483,7 @@ const Navbar = ({
           )}
 
           {/* LOGOUT */}
-          {loggedInUser && (
+          {/* {loggedInUser && (
 
             <button
               onClick={handleLogout}
@@ -492,7 +492,7 @@ const Navbar = ({
               Logout
             </button>
 
-          )}
+          )} */}
 
           {/* WISHLIST */}
           <button
