@@ -9,7 +9,7 @@ const AdminLayout = () => {
     const fetchProducts = async()=>{
       try {
         const response = await getProducts();
-        setProducts(response.data.data)
+        setProducts(response.data)
       } catch (error) {
         console.error("Error fetching products:",error)
       }
@@ -30,3 +30,4 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
+
