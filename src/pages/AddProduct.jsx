@@ -34,20 +34,26 @@ const AddProduct =()=>{
 
             const data =new FormData();
 
-            data.append("title",formData.title);
-             data.append("price",formData.price);
-              data.append("category",formData.category);
-               data.append("brand",formData.brand);
-                data.append("rating",formData.rating || 0);
+            data.append("title",formData.title.trim());
+             data.append("price",Number(formData.price));
+              data.append("category",formData.category.trim());
+               data.append("brand",formData.brand || "other");
+                data.append("rating",Number(formData.rating || 0));
                  data.append("image",image);
 
+                //  check submitted data
+                for(const[key,value]of data.entries()){
+                  console.log(key,value)
+                }
                  const response = await createProduct(data)
+                 console.log ("Product created:",response)
 
                  alert (response.message || "Product created successfully")
 
                  navigate("/products")
         } catch (error) {
-            console.error("Product creation error :",error)
+            console.error("Product creation error :",error.response?.data)
+            console.log("Backend response:",)
             alert(error.response?.data?.message || "Failed to create product")
         }finally{
             setloading(false)

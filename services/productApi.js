@@ -18,13 +18,13 @@ export const createProduct = async(productData)=>{
 };
 
 // update product
-export const updateProduct = async(id,productData)=>{
-    const response = await apiClient.put(`/api/products/${id}`,productData);
+export const updateProduct = async(_id,productData)=>{
+    const response = await apiClient.put(`/api/products/${_id}`,productData);
     return response.data;
 };
 
 // Delete Product
-export const deleteProduct = async(id)=>{
-    const response = await apiClient.get(`/api/products/${id}`);
+export const deleteProduct = async(_id)=>{
+    const response = await apiClient.delete(`/api/products/${_id}`);
     return response.data
 }

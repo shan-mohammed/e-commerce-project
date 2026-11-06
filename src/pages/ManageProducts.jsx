@@ -5,7 +5,7 @@ const ManageProducts = () => {
 const { products, refreshProducts } = useOutletContext();
 const navigate = useNavigate();
 
-const handleDelete = async (id) => {
+const handleDelete = async (_id) => {
 const confirmDelete = window.confirm(
 "Are you sure you want to delete this product?"
 );
@@ -13,7 +13,7 @@ const confirmDelete = window.confirm(
 if (!confirmDelete) return;
 
 try {
-  const response = await deleteProduct(id);
+  const response = await deleteProduct(_id);
 
   await refreshProducts();
 
