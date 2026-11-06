@@ -2,44 +2,59 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Get logged-in user
 const getLoggedInUser = () => {
-  const user = localStorage.getItem("loggedInUser");
+  try {
+    const user = localStorage.getItem("loggedInUser");
+    return user ? JSON.parse(user) : null;
+  } catch (error) {
+    console.error("Error reading logged-in user:", error);
+    return null;
+  }
+};
 
-  return user ? JSON.parse(user) : null;
+// Get current user's ID
+const getUserId = () => {
+  const user = getLoggedInUser();
+  return user?._id || user?.id || null;
 };
 
 // Get wishlist for current user
 const getUserWishlist = () => {
-  const user = getLoggedInUser();
+  const userId = getUserId();
 
-  if (!user) {
+  if (!userId) return [];
+
+  try {
+    const wishlists = JSON.parse(
+      localStorage.getItem("userWishlists") || "{}"
+    );
+
+    return wishlists[userId] || [];
+  } catch (error) {
+    console.error("Error loading wishlist:", error);
     return [];
   }
-
-  const wishlists = JSON.parse(
-    localStorage.getItem("userWishlists") || "{}"
-  );
-
-  return wishlists[user.id] || [];
 };
 
 // Save wishlist for current user
 const saveUserWishlist = (items) => {
-  const user = getLoggedInUser();
+  const userId = getUserId();
 
-  if (!user) {
-    return;
+  if (!userId) return;
+
+  try {
+    const wishlists = JSON.parse(
+      localStorage.getItem("userWishlists") || "{}"
+    );
+
+    wishlists[userId] = items;
+
+    localStorage.setItem(
+      "userWishlists",
+      JSON.stringify(wishlists)
+    );
+  } catch (error) {
+    console.error("Error saving wishlist:", error);
   }
-
-  const wishlists = JSON.parse(
-    localStorage.getItem("userWishlists") || "{}"
-  );
-
-  wishlists[user.id] = items;
-
-  localStorage.setItem(
-    "userWishlists",
-    JSON.stringify(wishlists)
-  );
 };
 
 const initialState = {
@@ -48,22 +63,25 @@ const initialState = {
 
 const wishlistSlice = createSlice({
   name: "wishlist",
-
   initialState,
 
   reducers: {
-      setWishlist: (state, action) => {
-    state.items = action.payload;
-  },
+    setWishlist: (state, action) => {
+      state.items = action.payload;
+      saveUserWishlist(state.items);
+    },
 
-  resetWishlistState: (state) => {
-    state.items = [];
-  },
+    resetWishlistState: (state) => {
+      state.items = [];
+    },
+
+    // Add product
     addToWishlist: (state, action) => {
       const product = action.payload;
+      const productId = product._id || product.id;
 
       const exists = state.items.some(
-        (item) => item.id === product.id
+        (item) => (item._id || item.id) === productId
       );
 
       if (!exists) {
@@ -72,17 +90,20 @@ const wishlistSlice = createSlice({
       }
     },
 
+    // Remove product
     removeFromWishlist: (state, action) => {
+      const productId = action.payload;
+
       state.items = state.items.filter(
-        (item) => item.id !== action.payload
+        (item) => (item._id || item.id) !== productId
       );
 
       saveUserWishlist(state.items);
     },
 
+    // Clear current user's wishlist
     clearWishlist: (state) => {
       state.items = [];
-
       saveUserWishlist(state.items);
     },
   },

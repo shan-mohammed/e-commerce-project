@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { removeFromWishlist } from "../redux/wishListSlice";
 import { addToCart } from "../redux/cartSlice";
 import { useNavigate } from "react-router-dom";
+import { trackActivity } from "../../services/activityApi";
 
 function Wishlist() {
   const dispatch = useDispatch();
@@ -10,6 +11,22 @@ function Wishlist() {
   const wishlistItems = useSelector(
     (state) => state.wishlist.items
   );
+
+  // Add product to cart
+  const handleAddToCart = (product) => {
+    dispatch(addToCart(product));
+alert("added to cart")
+    trackActivity(product._id, "cart").catch((error) => {
+      console.error("Cart tracking error:", error);
+    });
+  };
+
+  // Remove product from wishlist
+  const handleRemove = (product) => {
+    const productId = product._id || product.id;
+
+    dispatch(removeFromWishlist(productId));
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -47,66 +64,68 @@ function Wishlist() {
         /* Wishlist Products */
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-          {wishlistItems.map((product) => (
+          {wishlistItems.map((product) => {
 
-            <div
-              key={product.id}
-              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition"
-            >
+            const productId = product._id || product.id;
 
-              {/* Image */}
+            return (
               <div
-                className="h-52 bg-gray-50 flex items-center justify-center p-4 cursor-pointer"
-                onClick={() =>
-                  navigate(`/products/${product.id}`)
-                }
+                key={productId}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition"
               >
-                <img
-                  src={product.thumbnail}
-                  alt={product.title}
-                  className="h-full w-full object-contain"
-                />
-              </div>
 
-              {/* Details */}
-              <div className="p-4">
-
-                <h3 className="font-semibold text-lg line-clamp-2">
-                  {product.title}
-                </h3>
-
-                <p className="text-sm text-gray-500 mt-1">
-                  {product.brand}
-                </p>
-
-                <p className="text-xl font-bold text-green-600 mt-3">
-                  ${product.price}
-                </p>
-
-                {/* Add to Cart */}
-                <button
+                {/* Image */}
+                <div
+                  className="h-52 bg-gray-50 flex items-center justify-center p-4 cursor-pointer"
                   onClick={() =>
-                    dispatch(addToCart(product))
+                    navigate(`/products/${productId}`)
                   }
-                  className="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
                 >
-                  Add to Cart
-                </button>
+                  <img
+                    src={product.imageUrl || "/placeholder.png"}
+                    alt={product.title}
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.png";
+                    }}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
 
-                {/* Remove */}
-                <button
-                  onClick={() =>
-                    dispatch(removeFromWishlist(product.id))
-                  }
-                  className="w-full mt-2 border border-red-500 text-red-500 py-2 rounded-lg hover:bg-red-50 transition"
-                >
-                  Remove
-                </button>
+                {/* Details */}
+                <div className="p-4">
 
+                  <h3 className="font-semibold text-lg line-clamp-2">
+                    {product.title}
+                  </h3>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    {product.brand || "Other"}
+                  </p>
+
+                  <p className="text-xl font-bold text-green-600 mt-3">
+                    ₹{Number(product.price).toFixed(2)}
+                  </p>
+
+                  {/* Add to Cart */}
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Add to Cart
+                  </button>
+
+                  {/* Remove */}
+                  <button
+                    onClick={() => handleRemove(product)}
+                    className="w-full mt-2 border border-red-500 text-red-500 py-2 rounded-lg hover:bg-red-50 transition"
+                  >
+                    Remove
+                  </button>
+
+                </div>
               </div>
-            </div>
-
-          ))}
+            );
+          })}
 
         </div>
       )}

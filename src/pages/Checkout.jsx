@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearCart } from "../redux/cartSlice";
+import { trackActivity } from "../../services/activityApi";
 import { useState } from "react";
 
 const Checkout = () => {
@@ -16,11 +17,14 @@ const Checkout = () => {
     pincode: "",
   });
 
+  // Calculate total
   const totalAmount = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) =>
+      total + (Number(item.price) || 0) * (Number(item.quantity) || 1),
     0
   );
 
+  // Handle input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -28,6 +32,7 @@ const Checkout = () => {
     });
   };
 
+  // Place order
   const handlePlaceOrder = (e) => {
     e.preventDefault();
 
@@ -35,42 +40,89 @@ const Checkout = () => {
       alert("Your cart is empty");
       return;
     }
-    const loggedInUser =JSON.parse(
-      localStorage.getItem("loggedInUser")
-    );
-    if(!loggedInUser){
+
+    let loggedInUser;
+
+    try {
+      loggedInUser = JSON.parse(
+        localStorage.getItem("loggedInUser") || "null"
+      );
+    } catch {
+      alert("Please log in again.");
       navigate("/login");
       return;
     }
 
+    if (!loggedInUser) {
+      navigate("/login");
+      return;
+    }
+
+    const userId = loggedInUser._id || loggedInUser.id;
+
+    if (!userId) {
+      alert("Unable to identify your account. Please log in again.");
+      return;
+    }
+
+    // Create order
     const order = {
       id: `ORD-${Date.now()}`,
-      userId :loggedInUser.id,
-      userEmail :loggedInUser.email,
-      
-      date: new Date().toLocaleDateString(),
+      userId: String(userId),
+      userEmail: loggedInUser.email,
+      date: new Date().toISOString(),
       status: "Processing",
-      customer: formData,
-      items: cartItems,
+
+      customer: {
+        ...formData,
+        email: loggedInUser.email || "",
+      },
+
+      items: cartItems.map((item) => ({
+        ...item,
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || 0,
+      })),
+
       total: totalAmount,
     };
 
-    const existingOrders = JSON.parse(
-      localStorage.getItem("orders") || "[]"
-    );
+    try {
+      // Save order in localStorage
+      const existingOrders = JSON.parse(
+        localStorage.getItem("orders") || "[]"
+      );
 
-    localStorage.setItem(
-      "orders",
-      JSON.stringify([...existingOrders, order])
-    );
+      localStorage.setItem(
+        "orders",
+        JSON.stringify([...existingOrders, order])
+      );
+    } catch (error) {
+      console.error("Order saving error:", error);
+      alert("Unable to save your order. Please try again.");
+      return;
+    }
+
+    // Track purchased products for recommendations
+    cartItems.forEach((item) => {
+      const productId = item._id || item.id;
+
+      if (productId) {
+        trackActivity(productId, "purchase").catch((error) =>
+          console.error("Purchase tracking error:", error)
+        );
+      }
+    });
 
     // Clear cart
     dispatch(clearCart());
 
-    // Go to Orders page
+    alert("Order placed successfully!");
+
     navigate("/profile/orders");
   };
 
+  // Empty cart
   if (cartItems.length === 0) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center px-4">
@@ -143,6 +195,8 @@ const Checkout = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
+                  pattern="[0-9]{10}"
+                  title="Enter a valid 10-digit phone number"
                   placeholder="Enter phone number"
                   className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
@@ -151,7 +205,6 @@ const Checkout = () => {
             </div>
 
             <div className="mt-4">
-
               <label className="block mb-2 font-medium">
                 Address
               </label>
@@ -165,7 +218,6 @@ const Checkout = () => {
                 placeholder="Enter your delivery address"
                 className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
-
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -197,6 +249,8 @@ const Checkout = () => {
                   value={formData.pincode}
                   onChange={handleChange}
                   required
+                  pattern="[0-9]{6}"
+                  title="Enter a valid 6-digit pincode"
                   placeholder="Enter pincode"
                   className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
@@ -223,38 +277,45 @@ const Checkout = () => {
 
           <div className="space-y-4">
 
-            {cartItems.map((item) => (
+            {cartItems.map((item, index) => {
+              const productId = item._id || item.id;
+              const price = Number(item.price) || 0;
+              const quantity = Number(item.quantity) || 1;
 
-              <div
-                key={item.id}
-                className="flex gap-3 border-b pb-4"
-              >
+              return (
+                <div
+                  key={productId || index}
+                  className="flex gap-3 border-b pb-4"
+                >
 
-                <img
-                  src={item.thumbnail}
-                  alt={item.title}
-                  className="w-16 h-16 object-cover rounded-lg"
-                />
+                  <img
+                    src={item.imageUrl || "/placeholder.png"}
+                    alt={item.title}
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.png";
+                    }}
+                    className="w-16 h-16 object-contain rounded-lg"
+                  />
 
-                <div className="flex-1">
+                  <div className="flex-1">
 
-                  <h3 className="font-medium line-clamp-2">
-                    {item.title}
-                  </h3>
+                    <h3 className="font-medium line-clamp-2">
+                      {item.title}
+                    </h3>
 
-                  <p className="text-sm text-gray-500">
-                    Qty: {item.quantity}
-                  </p>
+                    <p className="text-sm text-gray-500">
+                      Qty: {quantity}
+                    </p>
 
-                  <p className="font-semibold">
-                    ₹{(item.price * item.quantity).toFixed(2)}
-                  </p>
+                    <p className="font-semibold">
+                      ₹{(price * quantity).toFixed(2)}
+                    </p>
+
+                  </div>
 
                 </div>
-
-              </div>
-
-            ))}
+              );
+            })}
 
           </div>
 

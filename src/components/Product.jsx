@@ -13,21 +13,28 @@ import {
   removeFromCompare,
 } from "../redux/compareSlice";
 
+import { trackActivity } from "../../services/activityApi";
+
 function Product({ product }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const productId = product._id || product.id;
 
-  const cartItems = useSelector(
-  (state) => state.cart.items
-);
+  // Cart
+  const cartItems = useSelector((state) => state.cart.items);
 
-const isInCart = cartItems.some(
-  (item) => item.id === product._id
-);
+  const isInCart = cartItems.some(
+    (item) => (item._id || item.id) === productId
+  );
+
   // Wishlist
   const wishlistItems = useSelector(
     (state) => state.wishlist.items
+  );
+
+  const isWishlisted = wishlistItems.some(
+    (item) => (item._id || item.id) === productId
   );
 
   // Compare
@@ -35,29 +42,44 @@ const isInCart = cartItems.some(
     (state) => state.compare.items
   );
 
-  const isWishlisted = wishlistItems.some(
-    (item) => item.id === product._id
-  );
-
   const isCompared = compareItems.some(
-    (item) => item.id === product._id
+    (item) => (item._id || item.id) === productId
   );
 
-  // Wishlist handler
+  // Add or remove Wishlist
   const handleWishlist = () => {
     if (isWishlisted) {
-      dispatch(removeFromWishlist(product._id));
+      dispatch(removeFromWishlist(productId));
     } else {
       dispatch(addToWishlist(product));
+
+      trackActivity(productId, "wishlist").catch((error) =>
+        console.error("Wishlist tracking error:", error)
+      );
+
+      alert("Item added to wishlist!");
     }
   };
 
-  // Compare handler
+  // Add or remove Compare
   const handleCompare = () => {
     if (isCompared) {
-      dispatch(removeFromCompare(product._id));
+      dispatch(removeFromCompare(productId));
     } else {
       dispatch(addToCompare(product));
+    }
+  };
+
+  // Add to Cart
+  const handleAddToCart = () => {
+    if (!isInCart) {
+      dispatch(addToCart(product));
+
+      trackActivity(productId, "cart").catch((error) =>
+        console.error("Cart tracking error:", error)
+      );
+
+      alert("Item added to cart!");
     }
   };
 
@@ -68,11 +90,9 @@ const isInCart = cartItems.some(
       <div className="relative h-52 flex items-center justify-center bg-gray-50 p-4">
 
         <img
-          src={ product.imageUrl || "/placeholder.png"}
+          src={product.imageUrl || "/placeholder.png"}
           alt={product.title || "Product image"}
-          onClick={() =>
-            navigate(`/products/${product._id}`)
-          }
+          onClick={() => navigate(`/products/${productId}`)}
           className="h-full w-full object-contain cursor-pointer"
         />
 
@@ -80,11 +100,7 @@ const isInCart = cartItems.some(
         <button
           onClick={handleWishlist}
           className="absolute top-3 right-3 bg-white rounded-full w-10 h-10 shadow-md flex items-center justify-center hover:scale-110 transition"
-          title={
-            isWishlisted
-              ? "Remove from Wishlist"
-              : "Add to Wishlist"
-          }
+          title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
           <span className="text-2xl">
             {isWishlisted ? "❤️" : "🤍"}
@@ -96,7 +112,10 @@ const isInCart = cartItems.some(
       {/* Product Details */}
       <div className="p-4">
 
-        <h3 className="text-lg font-semibold line-clamp-2">
+        <h3
+          className="text-lg font-semibold line-clamp-2 cursor-pointer"
+          onClick={() => navigate(`/products/${productId}`)}
+        >
           {product.title}
         </h3>
 
@@ -107,7 +126,7 @@ const isInCart = cartItems.some(
         <div className="flex justify-between items-center mt-4">
 
           <p className="text-xl font-bold text-green-600">
-            ${product.price}
+            ₹{product.price}
           </p>
 
           <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-sm font-medium">
@@ -116,7 +135,7 @@ const isInCart = cartItems.some(
 
         </div>
 
-        {/* Compare Button */}
+        {/* Compare */}
         <button
           onClick={handleCompare}
           className={`w-full mt-4 py-2 rounded-lg transition font-medium ${
@@ -131,21 +150,17 @@ const isInCart = cartItems.some(
         </button>
 
         {/* Add to Cart */}
-    <button
-  onClick={() => {
-    if (!isInCart) {
-      dispatch(addToCart(product));
-    }
-  }}
-  disabled={isInCart}
-  className={`w-full mt-3 py-2 rounded-lg transition font-medium ${
-    isInCart
-      ? "bg-green-500 text-white cursor-not-allowed"
-      : "bg-blue-600 text-white hover:bg-blue-700"
-  }`}
->
-  {isInCart ? "✓ Added to Cart" : "Add to Cart"}
-</button>
+        <button
+          onClick={handleAddToCart}
+          disabled={isInCart}
+          className={`w-full mt-3 py-2 rounded-lg transition font-medium ${
+            isInCart
+              ? "bg-green-500 text-white cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+          }`}
+        >
+          {isInCart ? "✓ Added to Cart" : "Add to Cart"}
+        </button>
 
       </div>
     </div>

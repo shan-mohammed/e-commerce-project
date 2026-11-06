@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState ,useRef} from "react";
 import { useParams } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaBolt } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { getProductById } from "../../services/productApi";
-
+import { trackActivity } from "../../services/activityApi";
 
 const ProductDetails = () => {
 
   const { id } = useParams();
   const dispatch= useDispatch();
+
+  const lastTrackedProduct =useRef(null);
 
   const [product, setProduct] = useState(null);
   const [loading ,setLoading] =useState(true);
@@ -34,6 +36,29 @@ const ProductDetails = () => {
     fetchProduct()
   }, [id]);
 
+
+// track product views
+useEffect(()=>{
+  if(!product?._id) return;
+
+  // Prevent duplicate tracking for the same product
+if(lastTrackedProduct.current === product._id) return;
+lastTrackedProduct.current = product._id;
+trackActivity(product._id,"view").catch((error)=>{
+  console.error("Product view tracking error:",error)
+})
+},[product]);
+
+// track add to cart activity
+const handleAddToCart=()=>{
+  dispatch(addToCart(product));
+
+  trackActivity(product._id,"cart").catch((error)=>
+    console.error("Cart activity tracking error:",error)
+  );
+  alert("Item added to cart!")
+}
+
   if(loading) {
     return (
         <div className="flex justify-center items-center h-screen text-2xl font-semibold ">
@@ -49,25 +74,7 @@ const ProductDetails = () => {
     )
   }
 
-  // if (!product) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen text-2xl font-semibold">
-  //       Loading...
-  //     </div>
-  //   );
-  // }
 
-  // const nextImage = () => {
-  //   setCurrentImage((prev) =>
-  //     prev === product.images.length - 1 ? 0 : prev + 1
-  //   );
-  // };
-
-  // const prevImage = () => {
-  //   setCurrentImage((prev) =>
-  //     prev === 0 ? product.images.length - 1 : prev - 1
-  //   );
-  // };
 
   return (
      <section className="bg-gray-100 min-h-screen py-10 px-4">
@@ -80,7 +87,7 @@ const ProductDetails = () => {
                alt={product.title} className="max-h-full max-w-full object-contain" /> 
                </div> 
                </div>
-                {/* Product Information */}
+    {/* Product Information */}
                  <div className="space-y-5"> 
                   <h1 className="text-4xl font-bold">
                      {product.title} 
@@ -106,15 +113,16 @@ const ProductDetails = () => {
                                            </span> 
                                            </div> {product.description && ( <p className="text-gray-700 leading-7"> 
                                             {product.description} </p> )}
-                                             {/* Buttons */} 
+                              {/* Buttons */} 
                                              <div className="grid sm:grid-cols-3 gap-4 pt-5"> 
                                               <button className="flex justify-center items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg" >
                                                  <FaHeart /> Wishlist </button> 
-                                                 <button onClick={() =>
-                                                  dispatch(addToCart(product))} className="flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg" > 
-             <FaShoppingCart /> Add to Cart </button> 
-             <button className="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg" > 
-              <FaBolt /> Buy Now </button> 
+                                                
+                                                 <button onClick={handleAddToCart} className="flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg" > 
+                                               <FaShoppingCart /> Add to Cart </button> 
+
+                         <button className="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg" > 
+                                 <FaBolt /> Buy Now </button> 
              </div> 
              </div> 
            </div> 
