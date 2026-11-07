@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearCart } from "../redux/cartSlice";
 import { trackActivity } from "../../services/activityApi";
+import { createOrder } from "../../services/orderApi";
 import { useState } from "react";
 
 const Checkout = () => {
@@ -17,7 +18,10 @@ const Checkout = () => {
     pincode: "",
   });
 
-  // Calculate total
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Calculate total for display
   const totalAmount = cartItems.reduce(
     (total, item) =>
       total + (Number(item.price) || 0) * (Number(item.quantity) || 1),
@@ -30,14 +34,18 @@ const Checkout = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    setErrorMessage("");
   };
 
-  // Place order
-  const handlePlaceOrder = (e) => {
+  // Place order in MongoDB
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
     if (cartItems.length === 0) {
-      alert("Your cart is empty");
+      setErrorMessage("Your cart is empty.");
       return;
     }
 
@@ -48,7 +56,6 @@ const Checkout = () => {
         localStorage.getItem("loggedInUser") || "null"
       );
     } catch {
-      alert("Please log in again.");
       navigate("/login");
       return;
     }
@@ -58,68 +65,73 @@ const Checkout = () => {
       return;
     }
 
-    const userId = loggedInUser._id || loggedInUser.id;
-
-    if (!userId) {
-      alert("Unable to identify your account. Please log in again.");
+    if (!loggedInUser.email) {
+      setErrorMessage("Unable to identify your account. Please log in again.");
       return;
     }
 
-    // Create order
-    const order = {
-      id: `ORD-${Date.now()}`,
-      userId: String(userId),
-      userEmail: loggedInUser.email,
-      date: new Date().toISOString(),
-      status: "Processing",
-
-      customer: {
-        ...formData,
-        email: loggedInUser.email || "",
-      },
-
-      items: cartItems.map((item) => ({
-        ...item,
-        quantity: Number(item.quantity) || 1,
-        price: Number(item.price) || 0,
-      })),
-
-      total: totalAmount,
-    };
-
-    try {
-      // Save order in localStorage
-      const existingOrders = JSON.parse(
-        localStorage.getItem("orders") || "[]"
-      );
-
-      localStorage.setItem(
-        "orders",
-        JSON.stringify([...existingOrders, order])
-      );
-    } catch (error) {
-      console.error("Order saving error:", error);
-      alert("Unable to save your order. Please try again.");
-      return;
-    }
-
-    // Track purchased products for recommendations
-    cartItems.forEach((item) => {
+    const orderItems = cartItems.map((item) => {
       const productId = item._id || item.id;
 
-      if (productId) {
-        trackActivity(productId, "purchase").catch((error) =>
-          console.error("Purchase tracking error:", error)
-        );
-      }
+      return {
+        productId,
+        quantity: Number(item.quantity) || 1,
+      };
     });
 
-    // Clear cart
-    dispatch(clearCart());
+    if (orderItems.some((item) => !item.productId)) {
+      setErrorMessage("One or more products have an invalid ID.");
+      return;
+    }
 
-    alert("Order placed successfully!");
+    setIsSubmitting(true);
+    setErrorMessage("");
 
-    navigate("/profile/orders");
+    try {
+      // Send order to MongoDB
+      const response = await createOrder({
+        userEmail: loggedInUser.email,
+        customer: {
+          ...formData,
+          email: loggedInUser.email,
+        },
+        items: orderItems,
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || "Unable to place your order.");
+      }
+
+      // Track purchased products for recommendations
+      const trackingResults = await Promise.allSettled(
+        orderItems.map((item) =>
+          trackActivity(item.productId, "purchase")
+        )
+      );
+
+      trackingResults.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error("Purchase tracking error:", result.reason);
+        }
+      });
+
+      // Clear cart only after successful order creation
+      dispatch(clearCart());
+
+      alert("Order placed successfully!");
+
+      navigate("/profile/orders");
+    } catch (error) {
+      console.error("Order placement error:", error);
+
+      setErrorMessage(
+        error.response?.data?.message ||
+          error.message ||
+          "Unable to place your order. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Empty cart
@@ -139,7 +151,7 @@ const Checkout = () => {
 
           <button
             onClick={() => navigate("/products")}
-            className="mt-6 bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600"
+            className="mt-6 bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition"
           >
             Continue Shopping
           </button>
@@ -149,24 +161,24 @@ const Checkout = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="w-full max-w-6xl mx-auto px-3 sm:px-5 lg:px-6 py-6 sm:py-10">
 
-      <h1 className="text-3xl font-bold mb-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
         Checkout
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
 
         {/* Delivery Details */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+        <div className="min-w-0 lg:col-span-2 bg-white rounded-xl shadow-sm p-4 sm:p-6">
 
-          <h2 className="text-xl font-semibold mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-6">
             Delivery Address
           </h2>
 
           <form onSubmit={handlePlaceOrder}>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
               <div>
                 <label className="block mb-2 font-medium">
@@ -180,7 +192,7 @@ const Checkout = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter your name"
-                  className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full min-w-0 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -198,7 +210,7 @@ const Checkout = () => {
                   pattern="[0-9]{10}"
                   title="Enter a valid 10-digit phone number"
                   placeholder="Enter phone number"
-                  className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full min-w-0 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -216,11 +228,11 @@ const Checkout = () => {
                 required
                 rows="4"
                 placeholder="Enter your delivery address"
-                className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full min-w-0 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-y"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 
               <div>
                 <label className="block mb-2 font-medium">
@@ -234,7 +246,7 @@ const Checkout = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter city"
-                  className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full min-w-0 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -252,26 +264,33 @@ const Checkout = () => {
                   pattern="[0-9]{6}"
                   title="Enter a valid 6-digit pincode"
                   placeholder="Enter pincode"
-                  className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full min-w-0 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
             </div>
 
+            {errorMessage && (
+              <div className="mt-5 p-3 rounded-lg bg-red-50 text-red-600 text-sm break-words">
+                {errorMessage}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full mt-8 bg-teal-500 text-white py-3 rounded-lg font-semibold hover:bg-teal-600 transition"
+              disabled={isSubmitting}
+              className="w-full mt-8 bg-teal-500 text-white py-3 rounded-lg font-semibold hover:bg-teal-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Place Order
+              {isSubmitting ? "Placing Order..." : "Place Order"}
             </button>
 
           </form>
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-xl shadow-sm p-6 h-fit">
+        <div className="min-w-0 bg-white rounded-xl shadow-sm p-4 sm:p-6 h-fit">
 
-          <h2 className="text-xl font-semibold mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-6">
             Order Summary
           </h2>
 
@@ -294,20 +313,20 @@ const Checkout = () => {
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.png";
                     }}
-                    className="w-16 h-16 object-contain rounded-lg"
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg shrink-0"
                   />
 
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
 
-                    <h3 className="font-medium line-clamp-2">
+                    <h3 className="font-medium line-clamp-2 wrap-break-words">
                       {item.title}
                     </h3>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 mt-1">
                       Qty: {quantity}
                     </p>
 
-                    <p className="font-semibold">
+                    <p className="font-semibold mt-1">
                       ₹{(price * quantity).toFixed(2)}
                     </p>
 
@@ -321,13 +340,17 @@ const Checkout = () => {
 
           <div className="border-t mt-6 pt-4">
 
-            <div className="flex justify-between text-lg font-bold">
+            <div className="flex justify-between items-center gap-3 text-base sm:text-lg font-bold">
               <span>Total</span>
 
-              <span className="text-teal-600">
+              <span className="text-teal-600 whitespace-nowrap">
                 ₹{totalAmount.toFixed(2)}
               </span>
             </div>
+
+            <p className="text-xs text-gray-500 mt-3">
+              Final order total is calculated and verified by the server.
+            </p>
 
           </div>
 
