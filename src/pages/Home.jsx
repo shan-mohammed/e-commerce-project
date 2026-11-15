@@ -2,6 +2,8 @@ import Hero from "../components/Hero";
 import FeaturedProducts from "../components/FeaturedProducts";
 import OfferBanner from "../components/OfferBanner";
 import Features from "../components/Features";
+import RecommendedProducts from "../components/RecommendedProducts";
+
 
 const Home = () => {
   return (
@@ -12,6 +14,7 @@ const Home = () => {
         <FeaturedProducts />
         <OfferBanner />
         <Features />
+        <RecommendedProducts />
       </div>
     </main>
   );
