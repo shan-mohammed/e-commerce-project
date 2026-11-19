@@ -7,6 +7,18 @@ const getLoggedInUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
+// Get user ID
+const getUserId = () => {
+  const user = getLoggedInUser();
+
+  return user?._id || user?.id || null;
+};
+
+// Get product ID
+const getProductId = (product) => {
+  return product?._id || product?.id;
+};
+
 // Get compare products for current user
 const getUserCompare = () => {
   const user = getLoggedInUser();
@@ -15,18 +27,20 @@ const getUserCompare = () => {
     return [];
   }
 
+  const userId = user._id || user.id;
+
   const compares = JSON.parse(
     localStorage.getItem("userCompares") || "{}"
   );
 
-  return compares[user.id] || [];
+  return compares[userId] || [];
 };
 
 // Save compare products for current user
 const saveUserCompare = (items) => {
-  const user = getLoggedInUser();
+  const userId = getUserId();
 
-  if (!user) {
+  if (!userId) {
     return;
   }
 
@@ -34,7 +48,7 @@ const saveUserCompare = (items) => {
     localStorage.getItem("userCompares") || "{}"
   );
 
-  compares[user.id] = items;
+  compares[userId] = items;
 
   localStorage.setItem(
     "userCompares",
@@ -54,7 +68,8 @@ const compareSlice = createSlice({
   reducers: {
     // Load user's compare products after login
     setCompare: (state, action) => {
-      state.items = action.payload;
+      state.items = action.payload || [];
+      saveUserCompare(state.items);
     },
 
     // Clear Redux state during logout
@@ -65,16 +80,22 @@ const compareSlice = createSlice({
     // Add product to compare
     addToCompare: (state, action) => {
       const product = action.payload;
+      const productId = getProductId(product);
 
+      if (!productId) {
+        return;
+      }
+
+      // Check whether product already exists
       const exists = state.items.some(
-        (item) => item.id === product.id
+        (item) => getProductId(item) === productId
       );
 
       if (exists) {
         return;
       }
 
-      // Limit comparison to 3 products
+      // Maximum 3 products
       if (state.items.length >= 3) {
         return;
       }
@@ -87,7 +108,7 @@ const compareSlice = createSlice({
     // Remove product from compare
     removeFromCompare: (state, action) => {
       state.items = state.items.filter(
-        (item) => item.id !== action.payload
+        (item) => getProductId(item) !== action.payload
       );
 
       saveUserCompare(state.items);
