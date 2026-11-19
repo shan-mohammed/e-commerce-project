@@ -495,25 +495,24 @@ const Navbar = ({
           )} */}
 
           {/* WISHLIST */}
-          <button
-            onClick={() => navigate("/profile/wishlist")}
-            className="relative text-gray-700 hover:text-red-500 transition"
-          >
+{/* WISHLIST */}
+{loggedInUser?.role === "user" && (
+  <button
+    onClick={() => navigate("/profile/wishlist")}
+    className="relative text-gray-700 hover:text-red-500 transition"
+  >
+    <FaHeart className="text-xl" />
 
-            <FaHeart className="text-xl" />
-
-            {wishlistCount > 0 && (
-
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                {wishlistCount}
-              </span>
-
-            )}
-
-          </button>
+    {wishlistCount > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+        {wishlistCount}
+      </span>
+    )}
+  </button>
+)}
 
           {/* COMPARE */}
-          <button
+          {loggedInUser?.role ==="user" && (          <button
             onClick={() => navigate("/profile/compare")}
             className="relative text-gray-700 hover:text-purple-600 transition"
           >
@@ -529,27 +528,28 @@ const Navbar = ({
             )}
 
           </button>
+)}
 
           {/* CART */}
-          <NavLink
-            to="/cart"
-            className="relative flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
-          >
+<NavLink
+  to="/cart"
+  className="relative flex items-center gap-2 text-gray-700 hover:text-teal-500 transition"
+>
+  <FaShoppingCart size={20} />
 
-            <FaShoppingCart size={20} />
+  <span>
+    Cart
+  </span>
 
-            <span>
-              Cart
-            </span>
-
-            <span
-              className="absolute -top-2 -right-3 bg-red-500 text-white
-              text-xs rounded-full w-5 h-5 flex items-center justify-center"
-            >
-              {cartCount}
-            </span>
-
-          </NavLink>
+  {cartCount > 0 && (
+    <span
+      className="absolute -top-2 -right-3 bg-red-500 text-white
+      text-xs rounded-full w-5 h-5 flex items-center justify-center"
+    >
+      {cartCount}
+    </span>
+  )}
+</NavLink>
 
         </div>
 

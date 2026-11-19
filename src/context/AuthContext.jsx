@@ -1,9 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { resetCompareState } from "../redux/compareSlice";
+import { resetWishlistState } from "../redux/wishListSlice";
+import { resetCartState } from "../redux/cartSlice";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 
+  const dispatch = useDispatch();
   // Initialize user from localStorage
   const [loggedInUser, setLoggedInUser] = useState(() => {
     const storedUser = localStorage.getItem("loggedInUser");
@@ -23,6 +28,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("loggedInUser");
 
     setLoggedInUser(null);
+    dispatch(resetCompareState())
+    dispatch(resetWishlistState())
+    dispatch(resetCartState())
   };
 
   // Register
