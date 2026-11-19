@@ -27,6 +27,27 @@ const Compare = () => {
       maximumFractionDigits: 2,
     });
 
+  // Comparison features
+  const features = [
+    {
+      label: "Brand",
+      getValue: (product) => product.brand || "N/A",
+    },
+    {
+      label: "Category",
+      getValue: (product) => product.category || "N/A",
+    },
+    {
+      label: "Price",
+      getValue: (product) => formatPrice(product.price),
+    },
+    {
+      label: "Rating",
+      getValue: (product) =>
+        product.rating ? `⭐ ${product.rating} / 5` : "Not rated",
+    },
+  ];
+
   // Empty compare
   if (compareItems.length === 0) {
     return (
@@ -53,37 +74,10 @@ const Compare = () => {
     );
   }
 
-  // Comparison features
-  const features = [
-    {
-      label: "Product",
-      getValue: (product) => product.title || "N/A",
-    },
-    {
-      label: "Brand",
-      getValue: (product) => product.brand || "N/A",
-    },
-    {
-      label: "Category",
-      getValue: (product) => product.category || "N/A",
-    },
-    {
-      label: "Price",
-      getValue: (product) => formatPrice(product.price),
-    },
-    {
-      label: "Rating",
-      getValue: (product) =>
-        product.rating
-          ? `⭐ ${product.rating} / 5`
-          : "Not rated",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8 sm:py-10">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 lg:py-10">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -107,32 +101,115 @@ const Compare = () => {
 
         </div>
 
-        {/* Product Comparison */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        {/* MOBILE AND TABLET VIEW */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-5">
 
-          {/* Horizontal scrolling for smaller screens */}
+          {compareItems.map((product) => (
+            <div
+              key={getProductId(product)}
+              className="bg-white rounded-xl shadow-md overflow-hidden p-4 sm:p-5"
+            >
+
+              {/* Product image */}
+              <div className="h-44 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg mb-4 p-3">
+
+                <img
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="max-h-full max-w-full object-contain"
+                />
+
+              </div>
+
+              {/* Product title */}
+              <button
+                onClick={() =>
+                  navigate(`/products/${getProductId(product)}`)
+                }
+                className="font-semibold text-gray-800 text-lg text-left hover:text-blue-600 line-clamp-2"
+              >
+                {product.title}
+              </button>
+
+              {/* Product details */}
+              <div className="mt-4 space-y-3">
+
+                {features.map((feature) => (
+                  <div
+                    key={feature.label}
+                    className="flex justify-between items-center gap-3 border-b pb-3"
+                  >
+
+                    <span className="text-sm text-gray-500">
+                      {feature.label}
+                    </span>
+
+                    <span
+                      className={`text-sm text-right ${
+                        feature.label === "Price"
+                          ? "font-bold text-green-600"
+                          : "font-medium text-gray-700"
+                      }`}
+                    >
+                      {feature.getValue(product)}
+                    </span>
+
+                  </div>
+                ))}
+
+              </div>
+
+              {/* Actions */}
+              <div className="mt-5 flex flex-col gap-3">
+
+                <button
+                  onClick={() => dispatch(addToCart(product))}
+                  className="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                >
+                  🛒 Add to Cart
+                </button>
+
+                <button
+                  onClick={() =>
+                    dispatch(removeFromCompare(getProductId(product)))
+                  }
+                  className="w-full border border-red-500 text-red-500 py-2.5 rounded-lg hover:bg-red-50 transition text-sm font-medium"
+                >
+                  Remove
+                </button>
+
+              </div>
+
+            </div>
+          ))}
+
+        </div>
+
+        {/* DESKTOP VIEW */}
+        <div className="hidden lg:block bg-white rounded-xl shadow-md overflow-hidden">
+
           <div className="overflow-x-auto">
 
             <div
-              className="min-w-[650px]"
+              className="min-w-[750px]"
               style={{
                 display: "grid",
-                gridTemplateColumns: `140px repeat(${compareItems.length}, minmax(170px, 1fr))`,
+                gridTemplateColumns: `160px repeat(${compareItems.length}, minmax(190px, 1fr))`,
               }}
             >
 
-              {/* Product images */}
-              <div className="p-4 sm:p-5 border-b bg-gray-50 flex items-center font-semibold text-gray-700">
+              {/* Product heading */}
+              <div className="p-5 border-b bg-gray-50 flex items-center font-semibold text-gray-700">
                 Products
               </div>
 
               {compareItems.map((product) => (
                 <div
                   key={getProductId(product)}
-                  className="p-4 sm:p-5 border-b border-l text-center"
+                  className="p-5 border-b border-l text-center"
                 >
 
-                  <div className="h-32 sm:h-40 flex items-center justify-center mb-3">
+                  <div className="h-44 flex items-center justify-center mb-3">
 
                     <img
                       src={product.imageUrl}
@@ -154,29 +231,24 @@ const Compare = () => {
                 </div>
               ))}
 
-              {/* Comparison rows */}
+              {/* Comparison features */}
               {features.map((feature) => (
-                <div
-                  key={feature.label}
-                  className="contents"
-                >
+                <div key={feature.label} className="contents">
 
-                  <div className="p-4 sm:p-5 border-b bg-gray-50 font-semibold text-gray-700 flex items-center">
+                  <div className="p-5 border-b bg-gray-50 font-semibold text-gray-700 flex items-center">
                     {feature.label}
                   </div>
 
                   {compareItems.map((product) => (
                     <div
                       key={getProductId(product)}
-                      className="p-4 sm:p-5 border-b border-l flex items-center justify-center text-center text-gray-700"
+                      className="p-5 border-b border-l flex items-center justify-center text-center text-gray-700"
                     >
 
                       <span
                         className={
                           feature.label === "Price"
                             ? "text-lg font-bold text-green-600"
-                            : feature.label === "Product"
-                            ? "font-semibold"
                             : ""
                         }
                       >
@@ -190,14 +262,14 @@ const Compare = () => {
               ))}
 
               {/* Actions */}
-              <div className="p-4 sm:p-5 bg-gray-50 font-semibold text-gray-700 flex items-center">
+              <div className="p-5 bg-gray-50 font-semibold text-gray-700 flex items-center">
                 Actions
               </div>
 
               {compareItems.map((product) => (
                 <div
                   key={getProductId(product)}
-                  className="p-4 sm:p-5 border-l flex flex-col gap-3"
+                  className="p-5 border-l flex flex-col gap-3"
                 >
 
                   <button
@@ -224,7 +296,7 @@ const Compare = () => {
           </div>
         </div>
 
-        {/* Bottom button */}
+        {/* Continue Shopping */}
         <div className="mt-8 text-center">
 
           <button
