@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { addToCart } from "../redux/cartSlice";
+import { addToCart, removeFromCart } from "../redux/cartSlice";
 
 import {
   addToWishlist,
@@ -19,14 +19,15 @@ function Product({ product }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const productId = product._id || product.id;
+const productId = String(product._id || product.id);
 
-  // Cart
-  const cartItems = useSelector((state) => state.cart.items);
+// Cart
+const cartItems = useSelector((state) => state.cart.items);
 
-  const isInCart = cartItems.some(
-    (item) => (item._id || item.id) === productId
-  );
+const isInCart = cartItems.some(
+  (item) => String(item._id || item.id) === productId
+);
+
 
   // Wishlist
   const wishlistItems = useSelector(
@@ -72,7 +73,15 @@ function Product({ product }) {
 
   // Add to Cart
   const handleAddToCart = () => {
-    if (!isInCart) {
+
+
+    if (isInCart) {
+
+
+       dispatch(removeFromCart(productId));
+  } else {
+
+
       dispatch(addToCart(product));
 
       trackActivity(productId, "cart").catch((error) =>
@@ -152,14 +161,13 @@ function Product({ product }) {
         {/* Add to Cart */}
         <button
           onClick={handleAddToCart}
-          disabled={isInCart}
           className={`w-full mt-3 py-2 rounded-lg transition font-medium ${
             isInCart
               ? "bg-green-500 text-white cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
-          {isInCart ? "✓ Added to Cart" : "Add to Cart"}
+          {isInCart ? "✕ Remove from Cart" : "Add to Cart"}
         </button>
 
       </div>
