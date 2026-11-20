@@ -67,27 +67,33 @@ const Dashboard = () => {
     },
   ];
 
-  return (
-    <div className="space-y-8">
+ return (
+    <div className="w-full min-w-0 space-y-6 sm:space-y-8">
 
       {/* Dashboard Heading */}
-      <h1 className="text-3xl font-bold text-gray-900">
-        Admin Dashboard
-      </h1>
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          Admin Dashboard
+        </h1>
+
+        <p className="text-sm sm:text-base text-gray-500 mt-2">
+          Overview of your store and products.
+        </p>
+      </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
 
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
+            className="bg-white p-5 sm:p-6 rounded-xl shadow hover:shadow-lg transition duration-300"
           >
             <h2 className="text-gray-500 text-sm font-medium">
               {stat.title}
             </h2>
 
-            <p className={`text-3xl font-bold mt-4 ${stat.color}`}>
+            <p className={`text-2xl sm:text-3xl font-bold mt-3 sm:mt-4 ${stat.color}`}>
               {stat.value}
             </p>
           </div>
@@ -96,79 +102,115 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Products */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-4 sm:p-6">
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5 sm:mb-6">
           Recent Products
         </h2>
 
         {recentProducts.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-sm sm:text-base">
             No products available.
           </p>
         ) : (
+          <>
+            {/* Mobile Product Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
 
-          <div className="overflow-x-auto">
+              {recentProducts.map((product) => (
+                <div
+                  key={product._id}
+                  className="border rounded-xl p-4 flex gap-4 items-center hover:bg-gray-50 transition"
+                >
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-20 h-20 object-contain rounded-lg shrink-0"
+                  />
 
-            <table className="w-full text-left">
-
-              <thead>
-                <tr className="border-b text-gray-500 text-sm">
-                  <th className="py-3 px-4">Image</th>
-                  <th className="py-3 px-4">Product Name</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Brand</th>
-                  <th className="py-3 px-4">Price</th>
-                  <th className="py-3 px-4">Rating</th>
-                </tr>
-              </thead>
-
-              <tbody>
-
-                {recentProducts.map((product) => (
-
-                  <tr
-                    key={product._id}
-                    className="border-b hover:bg-gray-50 transition"
-                  >
-
-                    <td className="py-3 px-4">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.title}
-                        className="w-14 h-14 object-contain rounded-lg"
-                      />
-                    </td>
-
-                    <td className="py-3 px-4 font-medium text-gray-800">
+                  <div className="min-w-0 space-y-1">
+                    <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
                       {product.title}
-                    </td>
+                    </h3>
 
-                    <td className="py-3 px-4 text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       {product.category}
-                    </td>
+                    </p>
 
-                    <td className="py-3 px-4 text-gray-600">
-                      {product.brand}
-                    </td>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Brand: {product.brand || "Other"}
+                    </p>
 
-                    <td className="py-3 px-4 font-semibold">
-                      {product.price}
-                    </td>
+                    <p className="font-semibold text-gray-800 text-sm">
+                      ₹{product.price}
+                    </p>
 
-                    <td className="py-3 px-4 text-yellow-600">
+                    <p className="text-yellow-600 text-sm">
                       ⭐ {product.rating || 0}
-                    </td>
+                    </p>
+                  </div>
+                </div>
+              ))}
 
+            </div>
+
+            {/* Tablet and Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+
+              <table className="w-full min-w-650px text-left">
+
+                <thead>
+                  <tr className="border-b text-gray-500 text-sm">
+                    <th className="py-3 px-4">Image</th>
+                    <th className="py-3 px-4">Product Name</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Brand</th>
+                    <th className="py-3 px-4">Price</th>
+                    <th className="py-3 px-4">Rating</th>
                   </tr>
+                </thead>
 
-                ))}
+                <tbody>
+                  {recentProducts.map((product) => (
+                    <tr
+                      key={product._id}
+                      className="border-b hover:bg-gray-50 transition"
+                    >
+                      <td className="py-3 px-4">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.title}
+                          className="w-14 h-14 object-contain rounded-lg"
+                        />
+                      </td>
 
-              </tbody>
+                      <td className="py-3 px-4 font-medium text-gray-800">
+                        {product.title}
+                      </td>
 
-            </table>
+                      <td className="py-3 px-4 text-gray-600">
+                        {product.category}
+                      </td>
 
-          </div>
+                      <td className="py-3 px-4 text-gray-600">
+                        {product.brand || "Other"}
+                      </td>
+
+                      <td className="py-3 px-4 font-semibold">
+                        ₹{product.price}
+                      </td>
+
+                      <td className="py-3 px-4 text-yellow-600">
+                        ⭐ {product.rating || 0}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+
+            </div>
+          </>
         )}
 
       </div>
