@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 
 const RootLayout = () => {
   const [products, setProducts] = useState([]);
+  const [loading ,setLoading] = useState(true)
   const [filterOpen, setFilterOpen] = useState(false);
 
   const [search, setSearch] = useState("");
@@ -18,54 +19,20 @@ const RootLayout = () => {
     sort: "",
   });
 
-  // Fetch products
-//  useEffect(() => {
-//   fetch("https://dummyjson.com/products?limit=200")
-//     .then((res) => {
-//       if (!res.ok) {
-//         throw new Error(`HTTP error! Status: ${res.status}`);
-//       }
-
-//       return res.json();
-//     })
-//     .then((data) => {
-//       setProducts(data.products);
-//     })
-//     .catch((error) => {
-//       console.error("Failed to fetch products:", error);
-//     });
-// }, []);
-
-// useEffect(()=>{
-//   const fetchProducts = async ()=>{
-//     try {
-//          const data = await getProducts();
-
-//          setProducts(
-//           data?.map((product)=>({
-//             ...product,
-//             id:product._id,
-//           }))
-//          )
-//     } catch (error) {
-//       console.error(
-//         "Failed to fetch products:",
-//         error.response?.data || error.message
-//       )
-//     }
-//   }
-//   fetchProducts()
-// },[])
 
 const refreshProducts= useCallback(async()=>{
   try {
+    setLoading(true);
     const data = await getProducts();
 
     setProducts (data || []);
    
   } catch (error) {
     console.error("Failed to fetch products:",error.response?.data || error.message)
+  }finally{
+    setLoading(false)
   }
+
 },[])
 
 
@@ -129,6 +96,7 @@ useEffect(()=>{
             categories,
             brands,
             clearFilters,
+            loading,
             refreshProducts
           }}
         />

@@ -4,11 +4,13 @@ import SortFilter from "../components/SortFilter";
 
 
 function Products() {
+
   const {
     products,
     search,
     filters,
     setFilters,
+    loading,
   } = useOutletContext();
 
   // --------------------------------
@@ -167,41 +169,51 @@ function Products() {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 ">
+   {loading ? (
 
-        {filteredProducts.length > 0 ? (
+  <div className="flex flex-col items-center justify-center min-h-[400px]">
 
-          filteredProducts.map((product) => (
-            <Product
-              key={product._id}
-              product={product}
-            />
-          ))
+    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
 
-        ) : (
+    <p className="mt-5 text-lg font-medium text-gray-600">
+      Loading products...
+    </p>
 
-          <div className="col-span-full flex flex-col items-center justify-center py-20">
+  </div>
 
-            <h2 className="text-2xl font-semibold text-gray-700">
-              No products found
-            </h2>
+) : filteredProducts.length > 0 ? (
 
-            <p className="text-gray-500 mt-2">
-              No products match your filters
-            </p>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
-            <button
-              onClick={clearFilters}
-              className="mt-5 bg-teal-500 text-white px-5 py-2 rounded-lg hover:bg-teal-600"
-            >
-              Clear Filters
-            </button>
+    {filteredProducts.map((product) => (
+      <Product
+        key={product._id}
+        product={product}
+      />
+    ))}
 
-          </div>
+  </div>
 
-        )}
+) : (
 
-      </div>
+  <div className="text-center py-20">
+    <h2 className="text-2xl font-semibold">
+      No products found
+    </h2>
+
+    <p className="text-gray-500 mt-2">
+      No products match your filters.
+    </p>
+
+    <button
+      onClick={clearFilters}
+      className="mt-5 bg-teal-500 text-white px-5 py-2 rounded-lg"
+    >
+      Clear Filters
+    </button>
+  </div>
+
+)}
 
     </div>
   );
