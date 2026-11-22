@@ -22,6 +22,7 @@ import Dashboard from '../pages/Dashboard'
 import AddProduct from '../pages/AddProduct'
 import ManageProducts from '../pages/ManageProducts'
 import EditProduct from '../pages/EditProduct'
+import ManageUsers from '../pages/ManageUsers'
 
 export const router = createBrowserRouter([
     {
@@ -120,6 +121,10 @@ export const router = createBrowserRouter([
           path: "edit-product/:id",
           element: <EditProduct />,
         },
+        {
+              path: "users",
+               element: <ManageUsers />,
+          },
             ]
           }
         ]

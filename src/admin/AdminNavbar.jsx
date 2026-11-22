@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { FaHome, FaBars, FaTimes } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const AdminNavbar = () => {
     { to: "/admin/dashboard", label: "Admin Dashboard" },
     { to: "/admin/add-product", label: "Add Product" },
     { to: "/admin/products", label: "Manage Products" },
+    {to:"/admin/users", label:"Manage Users"}
   ];
 
   return (
@@ -100,7 +102,20 @@ const AdminNavbar = () => {
               <FaHome className="text-lg" />
               <span>Home</span>
             </NavLink>
-
+             
+             <NavLink
+  to="/admin/users"
+  className={({ isActive }) =>
+    `flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+      isActive
+        ? "bg-blue-600 text-white"
+        : "text-gray-700 hover:bg-blue-100"
+    }`
+  }
+>
+  <FaUsers />
+  Manage Users
+</NavLink>
             <button
               onClick={handleLogout}
               className="w-full text-left bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition"
