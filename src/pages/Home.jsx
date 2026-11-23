@@ -12,9 +12,10 @@ const Home = () => {
 
       <div className="w-full  sm:px-6 lg:px-2">
         <FeaturedProducts />
+         <RecommendedProducts />
         <OfferBanner />
         <Features />
-        <RecommendedProducts />
+       
       </div>
     </main>
   );
