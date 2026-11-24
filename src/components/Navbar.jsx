@@ -132,11 +132,7 @@ const Navbar = ({
     }));
   };
 
-  // Logout
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -482,19 +478,9 @@ const Navbar = ({
 
           )}
 
-          {/* LOGOUT */}
-          {/* {loggedInUser && (
 
-            <button
-              onClick={handleLogout}
-              className="text-gray-700 hover:text-red-500 transition"
-            >
-              Logout
-            </button>
+          
 
-          )} */}
-
-          {/* WISHLIST */}
 {/* WISHLIST */}
 {loggedInUser?.role === "user" && (
   <button

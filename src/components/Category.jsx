@@ -23,7 +23,7 @@ const CategoryFilter = ({
           All Categories
         </option>
 
-        {categories.map((category) => (
+        {categories?.map((category) => (
           <option
             key={category}
             value={category}

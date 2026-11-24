@@ -25,8 +25,7 @@ const refreshProducts= useCallback(async()=>{
     setLoading(true);
     const data = await getProducts();
 
-    setProducts (data || []);
-   
+setProducts(Array.isArray(data) ? data : data.products || []);   
   } catch (error) {
     console.error("Failed to fetch products:",error.response?.data || error.message)
   }finally{
